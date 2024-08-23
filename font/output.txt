@@ -1,0 +1,4660 @@
+File: ./src\App.vue
+File Name: App.vue
+<template>
+  <div id="app">
+    <router-view/>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App'
+}
+</script>
+
+<style>
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #484a4d;
+  /* background:  #b6bbbb21; */
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+</style>
+
+
+File: ./src\main.js
+File Name: main.js
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import api from './http'
+import store from './store'
+import global from '@/utils/global'
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+import 'font-awesome/css/font-awesome.min.css'
+
+Vue.use(ElementUI)
+Vue.use(api)
+Vue.prototype.global = global
+
+new Vue({
+  el: '#app',
+  router,
+  store,
+  render: h => h(App)
+});
+
+File: ./src\components\BreadCrumb\index.vue
+File Name: index.vue
+<template>
+  <el-breadcrumb separator="/" class="breadcrumb">
+    <el-breadcrumb-item v-for="item in $route.matched" :key="item.path">
+      <router-link :to="item.path">{{ item.name }}</router-link>
+    </el-breadcrumb-item>
+  </el-breadcrumb>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+    };
+  },
+  methods: {
+
+  },
+  mounted() {
+
+  }
+};
+</script>
+
+<style scoped lang="scss">
+.breadcrumb {
+  padding: 10px;
+}
+</style>
+
+File: ./src\components\Hamburger\index.vue
+File Name: index.vue
+<template>
+  <svg t="1492500959545" @click="onClick == null ? emptyClick : onClick" class="hamburger" fill="#fff" fill-opacity="0.8" :class="{'is-active':isActive}" viewBox="0 0 1024 1024"
+    version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1691" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64">
+    <path d="M966.8023 568.849776 57.196677 568.849776c-31.397081 0-56.850799-25.452695-56.850799-56.850799l0 0c0-31.397081 25.452695-56.849776 56.850799-56.849776l909.605623 0c31.397081 0 56.849776 25.452695 56.849776 56.849776l0 0C1023.653099 543.397081 998.200404 568.849776 966.8023 568.849776z"
+      p-id="1692"></path>
+    <path d="M966.8023 881.527125 57.196677 881.527125c-31.397081 0-56.850799-25.452695-56.850799-56.849776l0 0c0-31.397081 25.452695-56.849776 56.850799-56.849776l909.605623 0c31.397081 0 56.849776 25.452695 56.849776 56.849776l0 0C1023.653099 856.07443 998.200404 881.527125 966.8023 881.527125z"
+      p-id="1693"></path>
+    <path d="M966.8023 256.17345 57.196677 256.17345c-31.397081 0-56.850799-25.452695-56.850799-56.849776l0 0c0-31.397081 25.452695-56.850799 56.850799-56.850799l909.605623 0c31.397081 0 56.849776 25.452695 56.849776 56.850799l0 0C1023.653099 230.720755 998.200404 256.17345 966.8023 256.17345z"
+      p-id="1694"></path>
+  </svg>
+</template>
+
+<script>
+export default {
+  name: 'hamburger',
+  props: {
+    isActive: {
+      type: Boolean,
+      default: false
+    },
+    onClick: {
+      type: Function,
+      default: null
+    }
+  },
+  methods: {
+    emptyClick() {
+      
+    }
+  }
+}
+</script>
+
+<style scoped>
+.hamburger {
+  display: inline-block;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  transform: rotate(90deg);
+  transition: .38s;
+  transform-origin: 50% 50%;
+}
+.hamburger.is-active {
+  transform: rotate(0deg);
+}
+</style>
+
+File: ./src\components\MenuTree\index.vue
+File Name: index.vue
+<template>
+  <el-submenu v-if="menu.children && menu.children.length >= 1" :index="'' + menu.id">
+    <template slot="title">
+      <i :class="menu.icon" ></i>
+      <span slot="title">{{menu.name}}</span>
+    </template>
+    <MenuTree v-for="item in menu.children" :key="item.id" :menu="item"></MenuTree>
+  </el-submenu>
+  <el-menu-item v-else :index="'' + menu.id" @click="handleRoute(menu)">
+    <i :class="menu.icon"></i>
+    <span slot="title">{{menu.name}}</span>
+  </el-menu-item>
+</template>
+
+<script>
+import { getIFrameUrl, getIFramePath } from '@/utils/iframe'
+export default {
+  name: 'MenuTree',
+  props: {
+    menu: {
+      type: Object,
+      required: true
+    }
+  },
+  methods: {
+    handleRoute (menu) {
+      // 如果是嵌套页面，转换成iframe的path
+      let path = getIFramePath(menu.url)
+      if(!path) {
+        path = menu.url
+      }
+      // 通过菜单URL跳转至指定路由
+      this.$router.push("/" + path)
+    }
+  }
+}
+</script>
+
+<style scoped lang="scss">
+// .el-submenu, .el-menu-item {
+//   background-color: #3c4b5a44;
+// }
+</style>
+
+File: ./src\components\PopupTreeInput\index.vue
+File Name: index.vue
+<template>
+  <div>
+    <el-popover ref="popover" :placement="placement" trigger="click">
+      <el-tree
+        :data="data"
+        :props="props"
+        node-key="nodeKey"
+        ref="popupTree"
+        @current-change="currentChangeHandle"
+        :default-expand-all="defaultExpandAll"
+        :highlight-current="true"
+        :expand-on-click-node="true">
+      </el-tree>
+    </el-popover>
+    <el-input v-model="prop" v-popover:popover :readonly="true" :placeholder="placeholder" style="cursor:pointer;"></el-input>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'PopupTreeInput',
+  props: {
+    data: {
+      type: Array,
+      default: []
+    },
+    props: {
+      type: Object,
+      default: {}
+    },
+    prop: {
+      type: String,
+      default: ''
+    },
+    nodeKey: {
+      type: String,
+      default: ''
+    },
+    placeholder: {
+      type: String,
+      default: '点击选择内容'
+    },
+    placement: {
+      type: String,
+      default: 'right-start'
+    },
+    defaultExpandAll: {
+      type: Boolean,
+      default: false
+    },
+    currentChangeHandle: {
+      type: Function,
+      default: null
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+File: ./src\components\Toolbar\Action.vue
+File Name: Action.vue
+<template>
+  <div class="action" :style="actionStyle" @click="onClick">
+    <li :style="iconStyle" :class="icon"></li>
+  </div>
+</template>
+
+<script>
+  export default {
+    name: 'Action',
+    props: {
+      actionStyle: {
+        type: String,
+        default: 'width:60px;display:inline-block;'
+      },
+      icon: {
+        type: String,
+        default: 'fa fa-home fa-lg'
+      },
+      iconStyle: {
+        type: String,
+        default: 'color:#fff;'
+      },
+      onClick: {
+        type: Function,
+        default: null
+      }
+    },
+    data() {
+      return {
+      }
+    },
+    methods: {
+    }
+  }
+</script>
+<style scoped lang="scss">
+.action:hover {
+  background: #636b6931;
+}
+</style>
+
+File: ./src\http\api.js
+File Name: api.js
+/* 
+ * 接口统一集成模块
+ */
+import * as login from './moudules/login'
+import * as user from './moudules/user'
+import * as dept from './moudules/dept'
+import * as role from './moudules/role'
+import * as menu from './moudules/menu'
+
+
+// 默认全部导出
+export default {
+    login,
+    user,
+    dept,
+    role,
+    menu,
+}
+
+File: ./src\http\axios.js
+File Name: axios.js
+import axios from 'axios';
+import config from './config';
+import router from '@/router'
+
+// 使用vuex做全局loading时使用
+// import store from '@/store'
+
+export default function $axios(options) {
+  return new Promise((resolve, reject) => {
+    const instance = axios.create({
+      baseURL: config.baseUrl,
+      headers: config.headers,
+      timeout: config.timeout,
+      // 想要withCredentials生效必须关闭mockjs  mockjs会将withCredentials设置为false
+      withCredentials: config.withCredentials
+    })
+
+    // request 拦截器
+    instance.interceptors.request.use(
+      config => {
+        let token = sessionStorage.getItem('token')
+        // 1. 请求开始的时候可以结合 vuex 开启全屏 loading 动画
+        // console.log(store.state.loading)
+        // console.log('准备发送请求...')
+        // 2. 带上token
+        if (token) {
+          config.headers.Authorization = token
+        } else {
+          // 重定向到登录页面
+          router.push('/login')
+        }
+        // 3. 根据请求方法，序列化传来的参数，根据后端需求是否序列化
+        if (config.method === 'post') {
+          // if (config.data.__proto__ === FormData.prototype
+          //   || config.url.endsWith('path')
+          //   || config.url.endsWith('mark')
+          //   || config.url.endsWith('patchs')
+          // ) {
+
+          // } else {
+            // config.data = qs.stringify(config.data)
+          // }
+        }
+
+        return config
+      },
+
+      error => {
+        // 请求错误时
+        console.log('request:', error)
+        // 1. 判断请求超时
+        if (error.code === 'ECONNABORTED' && error.message.indexOf('timeout') !== -1) {
+          console.log('timeout请求超时')
+          // return service.request(originalRequest);// 再重复请求一次
+        }
+        // 2. 需要重定向到错误页面
+        const errorInfo = error.response
+        console.log(errorInfo)
+        if (errorInfo) {
+          error = errorInfo.data  // 页面那边catch的时候就能拿到详细的错误信息,看最下边的Promise.reject
+          const errorStatus = errorInfo.status; // 404 403 500 ...
+          router.push({
+            path: `/error/${errorStatus}`
+          })
+        }
+        return Promise.reject(error) // 在调用的那边可以拿到(catch)你想返回的错误信息
+      }
+    )
+
+    // response 拦截器
+    instance.interceptors.response.use(
+      response => {
+        let data;
+        // IE9时response.data是undefined，因此需要使用response.request.responseText(Stringify后的字符串)
+        if (response.data == undefined) {
+          data = JSON.parse(response.request.responseText)
+        } else {
+          data = response.data
+        }
+
+        // 根据返回的code值来做不同的处理
+        switch (data.rc) {
+          case 1:
+            console.log(data.desc)
+            break;
+          case 0:
+            store.commit('changeState')
+            // console.log('登录成功')
+          default:
+        }
+        // 若不是正确的返回code，且已经登录，就抛出错误
+        // const err = new Error(data.desc)
+        // err.data = data
+        // err.response = response
+        // throw err
+
+        return data
+      },
+      err => {
+        if (err && err.response) {
+          switch (err.response.status) {
+            case 400:
+              err.message = '请求错误'
+              break
+            case 401:
+              err.message = '未授权，请登录'
+              sessionStorage.removeItem('token')
+              router.push( `/login`)
+              break
+            case 403:
+              err.message = '拒绝访问'
+              break
+            case 404:
+              err.message = `请求地址出错: ${err.response.config.url}`
+              break
+            case 408:
+              err.message = '请求超时'
+              break
+            case 500:
+              err.message = '服务器内部错误'
+              break
+            case 501:
+              err.message = '服务未实现'
+              break
+            case 502:
+              err.message = '网关错误'
+              break
+            case 503:
+              err.message = '服务不可用'
+              break
+            case 504:
+              err.message = '网关超时'
+              break
+            case 505:
+              err.message = 'HTTP版本不受支持'
+              break
+            default:
+          }
+        }
+        console.error(err)
+        return Promise.reject(err) // 返回接口返回的错误信息
+      }
+    )
+
+    // 请求处理
+    instance(options).then(res => {
+      resolve(res)
+      return false
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
+
+File: ./src\http\config.js
+File Name: config.js
+
+import { baseUrl } from '@/utils/global'
+
+export default {
+  method: 'get',
+  // 基础url前缀
+  baseUrl: baseUrl,
+  // 请求头信息
+  headers: {
+    'Content-Type': 'application/json;charset=UTF-8'
+  },
+  // 参数
+  data: {},
+  // 设置超时时间
+  timeout: 10000,
+  // 携带凭证
+  withCredentials: true,
+  // 返回数据类型
+  responseType: 'json'
+}
+
+File: ./src\http\index.js
+File Name: index.js
+// 导入所有接口
+import api from './api'
+
+const install = Vue => {
+    if (install.installed)
+        return;
+
+    install.installed = true;
+
+    Object.defineProperties(Vue.prototype, {
+        // 注意，此处挂载在 Vue 原型的 $api 对象上
+        $api: {
+            get() {
+                return api
+            }
+        }
+    })
+}
+
+export default install
+
+File: ./src\http\moudules\dept.js
+File Name: dept.js
+import axios from '../axios'
+
+/* 
+ * 机构管理模块
+ */
+
+// 保存
+export const save = (data) => {
+    return axios({
+        url: '/dept/save',
+        method: 'post',
+        data
+    })
+}
+// 删除
+export const batchDelete = (data) => {
+    return axios({
+        url: '/dept/delete',
+        method: 'post',
+        data
+    })
+}
+// 查询机构树
+export const findDeptTree = (params) => {
+    return axios({
+        url: '/dept/findTree',
+        method: 'get',
+        params
+    })
+}
+
+File: ./src\http\moudules\login.js
+File Name: login.js
+import axios from '../axios'
+
+/* 
+ * 系统登录模块
+ */
+
+// 登录
+export const login = data => {
+    return axios({
+        url: '/login',
+        method: 'post',
+        data
+    })
+}
+
+// 登出
+export const logout = () => {
+    return axios({
+        url: 'logout',
+        method: 'get'
+    })
+}
+
+
+File: ./src\http\moudules\menu.js
+File Name: menu.js
+import axios from '../axios'
+
+/* 
+ * 菜单管理模块
+ */
+
+// 查找导航菜单树
+export const findNavTree = (params) => {
+    return axios({
+        url: '/menu/findNavTree',
+        method: 'get',
+        params
+    })
+}
+// 查找导航菜单树
+export const findMenuTree = (params) => {
+    return axios({
+        url: '/menu/findMenuTree',
+        method: 'get',
+        params
+    })
+}
+
+File: ./src\http\moudules\role.js
+File Name: role.js
+import axios from '../axios'
+
+/* 
+ * 角色管理模块
+ */
+
+// 保存
+export const save = (data) => {
+    return axios({
+        url: '/role/save',
+        method: 'post',
+        data
+    })
+}
+// 删除
+export const batchDelete = (data) => {
+    return axios({
+        url: '/role/delete',
+        method: 'post',
+        data
+    })
+}
+// 分页查询
+export const findPage = (data) => {
+    return axios({
+        url: '/role/findPage',
+        method: 'post',
+        data
+    })
+}
+// 查询全部
+export const findAll = () => {
+    return axios({
+        url: '/role/findAll',
+        method: 'get'
+    })
+}
+// 查询角色菜单集合
+export const findRoleMenus = (params) => {
+    return axios({
+        url: '/role/findRoleMenus',
+        method: 'get',
+        params
+    })
+}
+// 保存角色菜单集合
+export const saveRoleMenus = (data) => {
+    return axios({
+        url: '/role/saveRoleMenus',
+        method: 'post',
+        data
+    })
+}
+
+File: ./src\http\moudules\user.js
+File Name: user.js
+import axios from '../axios'
+
+/* 
+ * 用户管理模块
+ */
+
+// 保存
+export const save = (data) => {
+    return axios({
+        url: '/user/save',
+        method: 'post',
+        data
+    })
+}
+export const findByName = (params) => {
+    return axios({
+        url: '/user/findByName',
+        method: 'get',
+        params
+    })
+}
+// 删除
+export const batchDelete = (data) => {
+    return axios({
+        url: '/user/delete',
+        method: 'post',
+        data
+    })
+}
+// 分页查询
+export const findPage = (data) => {
+    return axios({
+        url: '/user/findPage',
+        method: 'post',
+        data
+    })
+}
+// 查找用户的菜单权限标识集合
+export const findPermissions = (params) => {
+    return axios({
+        url: '/user/findPermissions',
+        method: 'get',
+        params
+    })
+}
+
+File: ./src\mock\index.js
+File Name: index.js
+import Mock from 'mockjs'
+import { baseUrl } from '@/utils/global'
+import * as login from './modules/login'
+import * as user from './modules/user'
+import * as role from './modules/role'
+import * as dept from './modules/dept'
+import * as menu from './modules/menu'
+
+// 1. 开启/关闭[所有模块]拦截, 通过调[openMock参数]设置.
+// 2. 开启/关闭[业务模块]拦截, 通过调用fnCreate方法[isOpen参数]设置.
+// 3. 开启/关闭[业务模块中某个请求]拦截, 通过函数返回对象中的[isOpen属性]设置.
+let openMock = true
+// let openMock = false
+fnCreate(login, false)
+fnCreate(user, false)
+fnCreate(role, false)
+fnCreate(dept, false)
+fnCreate(menu, false)
+
+/**
+ * 创建mock模拟数据
+ * @param {*} mod 模块
+ * @param {*} isOpen 是否开启?
+ */
+function fnCreate (mod, isOpen = true) {
+  
+  if (isOpen) {
+    for (var key in mod) {
+      ((res) => {
+        if (res.isOpen !== false) {
+          let url = baseUrl
+          if(!url.endsWith("/")) {
+            url = url + "/"
+          }
+          url = url + res.url
+          Mock.mock(new RegExp(url), res.type, (opts) => {
+            opts['data'] = opts.body ? JSON.parse(opts.body) : null
+            delete opts.body
+            console.log('\n')
+            console.log('%cmock拦截, 请求: ', 'color:blue', opts)
+            console.log('%cmock拦截, 响应: ', 'color:blue', res.data)
+            return res.data
+          })
+        }
+      })(mod[key]() || {})
+    }
+  }
+}
+
+
+File: ./src\mock\modules\dept.js
+File Name: dept.js
+/* 
+ * 机构管理模块
+ */
+
+// 保存
+export function save() {
+  return {
+    url: 'dept/save',
+    type: 'post',
+    data: {
+      "code": 200,
+      "msg": null,
+      "data": 1
+    }
+  }
+}
+// 批量删除
+export function batchDelete() {
+  return {
+    url: 'dept/delete',
+    type: 'post',
+    data: {
+      "code": 200,
+      "msg": null,
+      "data": 1
+    }
+  }
+}
+export function findDeptTree(params) {
+  // 查询机构树
+  let findTreeData = {
+    "code": 200,
+    "msg": null,
+    "data": {}
+  }
+  let content = []
+  for(let i=0; i<3; i++) {
+    let obj = {}
+    obj.id   = i + 1
+    obj.parentId   = 0
+    obj.name = '机构部门  ' + obj.id
+    obj.parentName = "顶级机构"
+    obj.children = []
+    content.push(obj)
+  }
+  for(let i=0; i<content.length; i++) {
+    let parent = content[i]
+    for(let j=0; j<5; j++) {
+      let obj = {}
+      obj.id = (i + 1) + "" + (j + 1)
+      obj.parentId = parent.id
+      obj.parentName = parent.name
+      obj.name = '机构部门  ' + (i + 1) + "-" + (j + 1)
+      parent.children.push(obj)
+    }
+  }
+  findTreeData.data = content
+  return {
+    url: 'dept/findTree',
+    type: 'get',
+    data: findTreeData
+  }
+}
+
+
+File: ./src\mock\modules\login.js
+File Name: login.js
+/* 
+ * 系统登录模块
+ */
+
+// 登录接口
+export function login() {
+  const loginData = {
+    "code": 200,
+    "msg": null,
+    "data": {
+      "id": null,
+      "userId": 1,
+      "token": "77ae89be36504adfb5c09ef71409ea0e",
+      "expireTime": "2018-09-01T16:24:50.473+0000",
+      "createBy": null,
+      "createTime": null,
+      "lastUpdateBy": null,
+      "lastUpdateTime": "2018-09-01T04:24:50.473+0000"
+    }
+  }
+  return {
+    url: 'login',
+    type: 'post',
+    data: loginData
+  }
+}
+// 登出接口
+export function logout() {
+  const logoutData = {
+    "code": 200,
+    "msg": null,
+    "data": {
+    }
+  }
+  return {
+    url: 'logout',
+    type: 'get',
+    data: logoutData
+  }
+}
+
+File: ./src\mock\modules\menu.js
+File Name: menu.js
+/* 
+ * 菜单管理模块
+ */
+
+// 获取导航菜单树
+export function findNavTree() {
+  const navTreeData = {
+    "code": 200,
+    "msg": null,
+    "data": [{
+      "id": 1,
+      "createBy": null,
+      "createTime": null,
+      "lastUpdateBy": null,
+      "lastUpdateTime": null,
+      "parentId": 0,
+      "name": "系统管理",
+      "url": null,
+      "perms": null,
+      "type": 0,
+      "icon": "el-icon-setting",
+      "orderNum": 0,
+      "delFlag": 0,
+      "parentName": null,
+      "level": 0,
+      "children": [{
+        "id": 2,
+        "createBy": null,
+        "createTime": null,
+        "lastUpdateBy": null,
+        "lastUpdateTime": null,
+        "parentId": 1,
+        "name": "用户管理",
+        "url": "/sys/user",
+        "perms": null,
+        "type": 1,
+        "icon": "el-icon-service",
+        "orderNum": 1,
+        "delFlag": 0,
+        "parentName": "系统管理",
+        "level": 1,
+        "children": []
+      }, {
+        "id": 3,
+        "createBy": null,
+        "createTime": null,
+        "lastUpdateBy": null,
+        "lastUpdateTime": null,
+        "parentId": 1,
+        "name": "机构管理",
+        "url": "/sys/dept",
+        "perms": null,
+        "type": 1,
+        "icon": "el-icon-news",
+        "orderNum": 2,
+        "delFlag": 0,
+        "parentName": "系统管理",
+        "level": 1,
+        "children": []
+      }, {
+        "id": 4,
+        "createBy": null,
+        "createTime": null,
+        "lastUpdateBy": null,
+        "lastUpdateTime": null,
+        "parentId": 1,
+        "name": "角色管理",
+        "url": "/sys/role",
+        "perms": null,
+        "type": 1,
+        "icon": "el-icon-view",
+        "orderNum": 4,
+        "delFlag": 0,
+        "parentName": "系统管理",
+        "level": 1,
+        "children": []
+      },{
+        "id": 30,
+        "createBy": null,
+        "createTime": null,
+        "lastUpdateBy": null,
+        "lastUpdateTime": null,
+        "parentId": 28,
+        "name": "换皮肤",
+        "url": "/demo/theme",
+        "perms": null,
+        "type": 1,
+        "icon": "el-icon-picture",
+        "orderNum": 2,
+        "delFlag": 0,
+        "parentName": "使用案例",
+        "level": 1,
+        "children": []
+      }]
+    }]
+  }
+  return {
+    url: 'menu/findNavTree',
+    type: 'get',
+    data: navTreeData
+  }
+}
+
+// 获取菜单树
+export function findMenuTree() {
+  const menuTreeData = {
+    "code": 200,
+    "msg": null,
+    "data": [{
+      "id": 1,
+      "createBy": null,
+      "createTime": null,
+      "lastUpdateBy": null,
+      "lastUpdateTime": null,
+      "parentId": 0,
+      "name": "系统管理",
+      "url": null,
+      "perms": null,
+      "type": 0,
+      "icon": "el-icon-setting",
+      "orderNum": 0,
+      "delFlag": 0,
+      "parentName": null,
+      "level": 0,
+      "children": [{
+        "id": 2,
+        "createBy": null,
+        "createTime": null,
+        "lastUpdateBy": null,
+        "lastUpdateTime": null,
+        "parentId": 1,
+        "name": "用户管理",
+        "url": "/sys/user",
+        "perms": null,
+        "type": 1,
+        "icon": "el-icon-service",
+        "orderNum": 1,
+        "delFlag": 0,
+        "parentName": "系统管理",
+        "level": 1,
+        "children": [{
+          "id": 9,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 2,
+          "name": "查看",
+          "url": null,
+          "perms": "sys:user:view",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "用户管理",
+          "level": 2,
+          "children": []
+        }, {
+          "id": 10,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 2,
+          "name": "新增",
+          "url": null,
+          "perms": "sys:user:add",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "用户管理",
+          "level": 2,
+          "children": []
+        }, {
+          "id": 11,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 2,
+          "name": "修改",
+          "url": null,
+          "perms": "sys:user:edit",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "用户管理",
+          "level": 2,
+          "children": []
+        }, {
+          "id": 12,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 2,
+          "name": "删除",
+          "url": null,
+          "perms": "sys:user:delete",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "用户管理",
+          "level": 2,
+          "children": []
+        }]
+      }, {
+        "id": 3,
+        "createBy": null,
+        "createTime": null,
+        "lastUpdateBy": null,
+        "lastUpdateTime": null,
+        "parentId": 1,
+        "name": "机构管理",
+        "url": "/sys/dept",
+        "perms": null,
+        "type": 1,
+        "icon": "el-icon-news",
+        "orderNum": 2,
+        "delFlag": 0,
+        "parentName": "系统管理",
+        "level": 1,
+        "children": [{
+          "id": 13,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 3,
+          "name": "查看",
+          "url": null,
+          "perms": "sys:dept:view",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "机构管理",
+          "level": 2,
+          "children": []
+        }, {
+          "id": 14,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 3,
+          "name": "新增",
+          "url": null,
+          "perms": "sys:dept:add",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "机构管理",
+          "level": 2,
+          "children": []
+        }, {
+          "id": 15,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 3,
+          "name": "修改",
+          "url": null,
+          "perms": "sys:dept:edit",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "机构管理",
+          "level": 2,
+          "children": []
+        }, {
+          "id": 16,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 3,
+          "name": "删除",
+          "url": null,
+          "perms": "sys:dept:delete",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "机构管理",
+          "level": 2,
+          "children": []
+        }]
+      }, {
+        "id": 4,
+        "createBy": null,
+        "createTime": null,
+        "lastUpdateBy": null,
+        "lastUpdateTime": null,
+        "parentId": 1,
+        "name": "角色管理",
+        "url": "/sys/role",
+        "perms": null,
+        "type": 1,
+        "icon": "el-icon-view",
+        "orderNum": 4,
+        "delFlag": 0,
+        "parentName": "系统管理",
+        "level": 1,
+        "children": [{
+          "id": 17,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 4,
+          "name": "查看",
+          "url": null,
+          "perms": "sys:role:view",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "角色管理",
+          "level": 2,
+          "children": []
+        }, {
+          "id": 18,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 4,
+          "name": "新增",
+          "url": null,
+          "perms": "sys:role:add",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "角色管理",
+          "level": 2,
+          "children": []
+        }, {
+          "id": 19,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 4,
+          "name": "修改",
+          "url": null,
+          "perms": "sys:role:edit",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "角色管理",
+          "level": 2,
+          "children": []
+        }, {
+          "id": 20,
+          "createBy": null,
+          "createTime": null,
+          "lastUpdateBy": null,
+          "lastUpdateTime": null,
+          "parentId": 4,
+          "name": "删除",
+          "url": null,
+          "perms": "sys:role:delete",
+          "type": 2,
+          "icon": null,
+          "orderNum": 0,
+          "delFlag": 0,
+          "parentName": "角色管理",
+          "level": 2,
+          "children": []
+        }]
+      }, {
+        "id": 30,
+        "createBy": null,
+        "createTime": null,
+        "lastUpdateBy": null,
+        "lastUpdateTime": null,
+        "parentId": 28,
+        "name": "换皮肤",
+        "url": "/demo/theme",
+        "perms": null,
+        "type": 1,
+        "icon": "el-icon-picture",
+        "orderNum": 2,
+        "delFlag": 0,
+        "parentName": "使用案例",
+        "level": 1,
+        "children": []
+      }]
+    }]
+  }
+  return {
+    url: 'menu/findMenuTree',
+    type: 'get',
+    data: menuTreeData
+  }
+}
+
+export function setParentName(data) {
+  if(data == null) {
+    return
+  }
+  let len = data.length
+  for(let i=0; i<len; i++) {
+    let menu = data[i]
+    menu.parentName = 'menu' + menu.parentId
+    if(menu.children != null) {
+      setParentName(menu.children)
+    }
+  }
+}
+
+
+
+File: ./src\mock\modules\role.js
+File Name: role.js
+/* 
+ * 角色管理模块
+ */
+
+// 保存
+export function save() {
+  return {
+    url: 'role/save',
+    type: 'post',
+    data: {
+      "code": 200,
+      "msg": null,
+      "data": 1
+    }
+  }
+}
+// 批量删除
+export function batchDelete() {
+  return {
+    url: 'role/delete',
+    type: 'post',
+    data: {
+      "code": 200,
+      "msg": null,
+      "data": 1
+    }
+  }
+}
+// 查询全部
+export function findAll() {
+  let findAllData = {
+    "code": 200,
+    "msg": null,
+    "data": [
+      {
+        "id": 1,
+        "createBy": "admin",
+        "createTime": "2018-08-14T03:11:11.000+0000",
+        "lastUpdateBy": "admin",
+        "lastUpdateTime": "2018-08-14T03:11:11.000+0000",
+        "name": "admin",
+        "remark": "超级管理员",
+        "delFlag": 0
+      },
+      {
+        "id": 2,
+        "createBy": "admin",
+        "createTime": "2018-08-14T03:11:11.000+0000",
+        "lastUpdateBy": "admin",
+        "lastUpdateTime": "2018-08-14T03:11:11.000+0000",
+        "name": "dev",
+        "remark": "开发人员",
+        "delFlag": 0
+      },
+      {
+        "id": 3,
+        "createBy": "admin",
+        "createTime": "2018-08-14T03:11:11.000+0000",
+        "lastUpdateBy": "admin",
+        "lastUpdateTime": "2018-08-14T03:11:11.000+0000",
+        "name": "test",
+        "remark": "测试人员",
+        "delFlag": 0
+      }
+    ]
+  }
+  return {
+    url: 'role/findAll',
+    type: 'get',
+    data: findAllData
+  }
+}
+// 分页查询
+export function findPage(params) {
+  let findPageData = {
+    "code": 200,
+    "msg": null,
+    "data": {}
+  }
+  let pageNum = 1
+  let pageSize = 8
+  if(params !== null) {
+    // pageNum = params.pageNum
+  }
+  if(params !== null) {
+    // pageSize = params.pageSize
+  }
+  let content = this.getContent(pageNum, pageSize)
+  findPageData.data.pageNum = pageNum
+  findPageData.data.pageSize = pageSize
+  findPageData.data.totalSize = 50
+  findPageData.data.content = content
+  return {
+    url: 'role/findPage',
+    type: 'post',
+    data: findPageData
+  }
+}
+export function getContent(pageNum, pageSize) {
+  let content = []
+  for(let i=0; i<pageSize; i++) {
+    let obj = {}
+    let index = ((pageNum - 1) * pageSize) + i + 1
+    obj.id = index
+    obj.name = 'role' + index
+    obj.remark = 'remark role' + index
+    if(i % 2 === 0) {
+
+    }
+    obj.createBy= 'admin'
+    obj.createTime= '2018-08-14 11:11:11'
+    obj.createBy= 'admin'
+    obj.createTime= '2018-09-14 12:12:12'
+    content.push(obj)
+  }
+  return content
+}
+// 查询角色菜单集合
+export function findRoleMenus(params) {
+  let findRoleMenuData = {
+    "code": 200,
+    "msg": null,
+    "data": {}
+  }
+  return {
+    url: 'role/findRoleMenus',
+    type: 'get',
+    data: findRoleMenuData
+  }
+}
+
+File: ./src\mock\modules\user.js
+File Name: user.js
+/* 
+ * 用户管理模块
+ */
+
+// 保存
+export function save() {
+  return {
+    url: 'user/save',
+    type: 'post',
+    data: {
+      "code": 200,
+      "msg": null,
+      "data": 1
+    }
+  }
+}
+// 批量删除
+export function batchDelete() {
+  return {
+    url: 'user/delete',
+    type: 'post',
+    data: {
+      "code": 200,
+      "msg": null,
+      "data": 1
+    }
+  }
+}
+// 分页查询
+export function findPage(params) {
+  let findPageData = {
+    "code": 200,
+    "msg": null,
+    "data": {}
+  }
+  let pageNum = 1
+  let pageSize = 8
+  if(params !== null) {
+    // pageNum = params.pageNum
+  }
+  if(params !== null) {
+    // pageSize = params.pageSize
+  }
+  let content = this.getContent(pageNum, pageSize)
+  findPageData.data.pageNum = pageNum
+  findPageData.data.pageSize = pageSize
+  findPageData.data.totalSize = 50
+  findPageData.data.content = content
+  return {
+    url: 'user/findPage',
+    type: 'post',
+    data: findPageData
+  }
+}
+export function getContent(pageNum, pageSize) {
+  let content = []
+  for(let i=0; i<pageSize; i++) {
+    let obj = {}
+    let index = ((pageNum - 1) * pageSize) + i + 1
+    obj.id = index
+    obj.name = 'kitty' + index
+    obj.password = '9ec9750e709431dad22365cabc5c625482e574c74adaebba7dd02f1129e4ce1d'
+    obj.salt = 'YzcmCZNvbXocrsz9dm8e'
+    obj.email = 'kitty' + index +'@qq.com'
+    obj.mobile = '18688982323'
+    obj.status = 1
+    obj.deptId = 12
+    obj.deptName = '技术部'
+    obj.status = 1
+    if(i % 2 === 0) {
+      obj.deptId = 13
+      obj.deptName = '市场部'
+    }
+    obj.createBy= 'admin'
+    obj.createTime= '2018-08-14 11:11:11'
+    obj.createBy= 'admin'
+    obj.createTime= '2018-09-14 12:12:12'
+    content.push(obj)
+  }
+  return content
+}
+// 查找用户的菜单权限标识集合
+export function findPermissions() {
+  let permsData = {
+    "code": 200,
+    "msg": null,
+    "data": [
+      null,
+      "sys:user:view",
+      "sys:menu:delete",
+      "sys:dept:edit",
+      "sys:dict:edit",
+      "sys:dict:delete",
+      "sys:menu:add",
+      "sys:user:add",
+      "sys:log:view",
+      "sys:dept:delete",
+      "sys:role:edit",
+      "sys:role:view",
+      "sys:dict:view",
+      "sys:user:edit",
+      "sys:user:delete",
+      "sys:dept:view",
+      "sys:dept:add",
+      "sys:role:delete",
+      "sys:menu:view",
+      "sys:menu:edit",
+      "sys:dict:add",
+      "sys:role:add"
+    ]
+  }
+  return {
+    url: 'user/findPermissions',
+    type: 'get',
+    data: permsData
+  }
+}
+
+File: ./src\permission\index.js
+File Name: index.js
+import store from '@/store'
+/**
+ * 判断用户是否拥有操作权限
+ * 根据传入的权限标识，查看是否存在用户权限标识集合
+ * @param perms
+ */
+export function hasPermission (perms) {
+    let hasPermission = false
+    let permissions = store.state.user.perms
+    for(let i=0, len=permissions.length; i<len; i++) {
+        if(permissions[i] === perms) {
+            hasPermission = true;
+            break
+        }
+    }
+    return hasPermission
+}
+  
+  
+
+File: ./src\router\index.js
+File Name: index.js
+import Vue from 'vue'
+import Router from 'vue-router'
+import Cookies from "js-cookie"
+import Login from '@/views/Login'
+import NotFound from '@/views/Error/404'
+import Home from '@/views/Home'
+import Intro from '@/views/Intro/Intro'
+import api from '@/http/api'
+import store from '@/store'
+import { getIFramePath, getIFrameUrl } from '@/utils/iframe'
+
+Vue.use(Router)
+
+const router = new Router({
+  routes: [
+    {
+      path: '/',
+      name: '首页',
+      component: Home,
+      children: [
+        { 
+          path: '', 
+          name: '系统介绍', 
+          component: Intro,
+          meta: {
+            icon: 'fa fa-home fa-lg',
+            index: 0
+          }
+        }
+      ]
+    },
+    {
+      path: '/login',
+      name: '登录',
+      component: Login
+    },
+    {
+      path: '/404',
+      name: 'notFound',
+      component: NotFound
+    }
+  ]
+})
+
+router.beforeEach((to, from, next) => {
+  // 登录界面登录成功之后，会把用户信息保存在会话
+  // 存在时间为会话生命周期，页面关闭即失效。
+  let token = sessionStorage.getItem('token')
+  let userName = sessionStorage.getItem('user')
+  if (to.path === '/login') {
+    // 如果是访问登录界面，如果用户会话信息存在，代表已登录过，跳转到主页
+    if(token) {
+      next({ path: '/' })
+    } else {
+      next()
+    }
+  } else {
+    if (!token) {
+      // 如果访问非登录界面，且户会话信息不存在，代表未登录，则跳转到登录界面
+      next({ path: '/login' })
+    } else {
+      // 加载动态菜单和路由
+      addDynamicMenuAndRoutes(userName, to, from)
+      next()
+    }
+  }
+})
+
+/**
+* 加载动态菜单和路由
+*/
+function addDynamicMenuAndRoutes(userName, to, from) {
+  // 处理IFrame嵌套页面
+  handleIFrameUrl(to.path)
+  if(store.state.app.menuRouteLoaded) {
+    console.log('动态菜单和路由已经存在.')
+    return
+  }
+  api.menu.findNavTree({'username':userName})
+  .then(res => {
+    // 添加动态路由
+    let dynamicRoutes = addDynamicRoutes(res.data)
+    // 处理静态组件绑定路由
+    handleStaticComponent(router, dynamicRoutes)
+    router.addRoutes(router.options.routes)
+    // 保存加载状态
+    store.commit('menuRouteLoaded', true)
+    // 保存菜单树
+    store.commit('setNavTree', res.data)
+  }).then(res => {
+    api.user.findPermissions({'name':userName}).then(res => {
+      // 保存用户权限标识集合
+      store.commit('setPerms', res.data)
+    })
+  })
+  .catch(function(res) {
+  })
+}
+
+/**
+ * 处理路由到本地直接指定页面组件的情况
+ * 比如'代码生成'是要求直接绑定到'Generator'页面组件
+ */
+function handleStaticComponent(router, dynamicRoutes) {
+  for(let j=0;j<dynamicRoutes.length; j++) {
+    if(dynamicRoutes[j].name == '代码生成') {
+      dynamicRoutes[j].component = Generator
+      break
+    }
+  }
+  router.options.routes[0].children = router.options.routes[0].children.concat(dynamicRoutes)
+}
+
+/**
+ * 处理IFrame嵌套页面
+ */
+function handleIFrameUrl(path) {
+  // 嵌套页面，保存iframeUrl到store，供IFrame组件读取展示
+  let url = path
+  let length = store.state.iframe.iframeUrls.length
+  for(let i=0; i<length; i++) {
+    let iframe = store.state.iframe.iframeUrls[i]
+    if(path != null && path.endsWith(iframe.path)) {
+      url = iframe.url
+      store.commit('setIFrameUrl', url)
+      break
+    }
+  }
+}
+
+/**
+* 添加动态(菜单)路由
+* @param {*} menuList 菜单列表
+* @param {*} routes 递归创建的动态(菜单)路由
+*/
+function addDynamicRoutes (menuList = [], routes = []) {
+ var temp = []
+ for (var i = 0; i < menuList.length; i++) {
+   if (menuList[i].children && menuList[i].children.length >= 1) {
+     temp = temp.concat(menuList[i].children)
+   } else if (menuList[i].url && /\S/.test(menuList[i].url)) {
+      menuList[i].url = menuList[i].url.replace(/^\//, '')
+      // 创建路由配置
+      var route = {
+        path: menuList[i].url,
+        component: null,
+        name: menuList[i].name,
+        meta: {
+          icon: menuList[i].icon,
+          index: menuList[i].id
+        }
+      }
+      let path = getIFramePath(menuList[i].url)
+      if (path) {
+        // 如果是嵌套页面, 通过iframe展示
+        route['path'] = path
+        route['component'] = resolve => require([`@/views/IFrame/IFrame`], resolve)
+        // 存储嵌套页面路由路径和访问URL
+        let url = getIFrameUrl(menuList[i].url)
+        let iFrameUrl = {'path':path, 'url':url}
+        store.commit('addIFrameUrl', iFrameUrl)
+      } else {
+       try {
+         // 根据菜单URL动态加载vue组件，这里要求vue组件须按照url路径存储
+         // 如url="sys/user"，则组件路径应是"@/views/sys/user.vue",否则组件加载不到
+         let array = menuList[i].url.split('/')
+         let url = ''
+         for(let i=0; i<array.length; i++) {
+            url += array[i].substring(0,1).toUpperCase() + array[i].substring(1) + '/'
+         }
+         url = url.substring(0, url.length - 1)
+         route['component'] = resolve => require([`@/views/${url}`], resolve)
+       } catch (e) {}
+     }
+     routes.push(route)
+   }
+ }
+ if (temp.length >= 1) {
+   addDynamicRoutes(temp, routes)
+ } else {
+   console.log('动态路由加载...')
+   console.log(routes)
+   console.log('动态路由加载完成.')
+ }
+ return routes
+}
+
+export default router
+
+
+File: ./src\store\index.js
+File Name: index.js
+import Vue from 'vue'
+import vuex from 'vuex'
+
+Vue.use(vuex);
+
+import app from './modules/app'
+import tab from './modules/tab'
+import iframe from './modules/iframe'
+import user from './modules/user'
+import menu from './modules/menu'
+
+const store = new vuex.Store({
+    modules: {
+        app: app,
+        tab: tab,
+        iframe: iframe,
+        user: user,
+        menu: menu
+    }
+})
+
+export default store
+
+File: ./src\store\modules\app.js
+File Name: app.js
+export default {
+    state: {
+        appName: "Permission",  // 应用名称
+        themeColor: "#14889A",  // 主题颜色
+        oldThemeColor: "#14889A",   // 上一次主题颜色
+        collapse:false,  // 导航栏收缩状态
+        menuRouteLoaded:false    // 菜单和路由是否已经加载
+    },
+    getters: {
+        collapse(state){// 对应着上面state
+            return state.collapse
+        }
+    },
+    mutations: {
+        onCollapse(state){  // 改变收缩状态
+            state.collapse = !state.collapse
+        },
+        setThemeColor(state, themeColor){  // 改变主题颜色
+            state.oldThemeColor = state.themeColor
+            state.themeColor = themeColor
+        },
+        menuRouteLoaded(state, menuRouteLoaded){  // 改变菜单和路由的加载状态
+            state.menuRouteLoaded = menuRouteLoaded;
+        }
+    },
+    actions: {
+    }
+}
+
+File: ./src\store\modules\iframe.js
+File Name: iframe.js
+export default {
+    state: {
+        iframeUrl: [],   // 当前嵌套页面路由路径
+        iframeUrls: []   // 所有嵌套页面路由路径访问URL
+    },
+    getters: {
+    },
+    mutations: {
+        setIFrameUrl(state, iframeUrl){  // 设置iframeUrl
+            state.iframeUrl = iframeUrl
+        },
+        addIFrameUrl(state, iframeUrl){  // iframeUrls
+            state.iframeUrls.push(iframeUrl)
+        }
+    },
+    actions: {
+    }
+}
+
+File: ./src\store\modules\menu.js
+File Name: menu.js
+export default {
+    state: {
+        navTree: [],  // 导航菜单树
+    },
+    getters: {
+   
+    },
+    mutations: {
+        setNavTree(state, navTree){  // 设置导航菜单树
+            state.navTree = navTree;
+        }
+    },
+    actions: {
+        
+    }
+}
+
+File: ./src\store\modules\tab.js
+File Name: tab.js
+export default {
+  state: {
+    // 主入口标签页
+    mainTabs: [],
+    // 当前标签页名
+    mainTabsActiveName: ''
+  },
+  mutations: {
+    updateMainTabs (state, tabs) {
+      state.mainTabs = tabs
+    },
+    updateMainTabsActiveName (state, name) {
+      state.mainTabsActiveName = name
+    }
+  }
+}
+
+
+File: ./src\store\modules\user.js
+File Name: user.js
+export default {
+    state: {
+        perms: [],  // 用户权限标识集合
+    },
+    getters: {
+   
+    },
+    mutations: {
+        setPerms(state, perms){  // 用户权限标识集合
+            state.perms = perms;
+        }
+    },
+    actions: {
+    }
+}
+
+File: ./src\utils\clipboard.js
+File Name: clipboard.js
+import Vue from 'vue'
+import Clipboard from 'clipboard'
+
+function clipboardSuccess() {
+  Vue.prototype.$message({
+    message: 'Copy successfully',
+    type: 'success',
+    duration: 1500
+  })
+}
+
+function clipboardError() {
+  Vue.prototype.$message({
+    message: 'Copy failed',
+    type: 'error'
+  })
+}
+
+export default function handleClipboard(text, event) {
+  const clipboard = new Clipboard(event.target, {
+    text: () => text
+  })
+  clipboard.on('success', () => {
+    clipboardSuccess()
+    clipboard.off('error')
+    clipboard.off('success')
+    clipboard.destroy()
+  })
+  clipboard.on('error', () => {
+    clipboardError()
+    clipboard.off('error')
+    clipboard.off('success')
+    clipboard.destroy()
+  })
+  clipboard.onClick(event)
+}
+
+File: ./src\utils\datetime.js
+File Name: datetime.js
+/**
+ * 时间日期相关操作
+ */
+
+
+/**
+ * 时间格式化
+ * 将 2018-09-23T11:54:16.000+0000 格式化成 2018/09/23 11:54:16
+ * @param datetime 国际化日期格式
+ */
+export function format (datetime) {
+  return formatWithSeperator(datetime, "/", ":");
+}
+
+/**
+ * 时间格式化
+ * 将 2018-09-23T11:54:16.000+0000 格式化成类似 2018/09/23 11:54:16
+ * 可以指定日期和时间分隔符
+ * @param datetime 国际化日期格式
+ */
+export function formatWithSeperator (datetime, dateSeprator, timeSeprator) {
+  if (datetime != null) {
+    const dateMat = new Date(datetime);
+    const year = dateMat.getFullYear();
+    const month = dateMat.getMonth() + 1;
+    const day = dateMat.getDate();
+    const hh = dateMat.getHours();
+    const mm = dateMat.getMinutes();
+    const ss = dateMat.getSeconds();
+    const timeFormat = year + dateSeprator + month + dateSeprator + day + " " + hh + timeSeprator + mm + timeSeprator + ss;
+    return timeFormat;
+  }
+}
+
+
+File: ./src\utils\global.js
+File Name: global.js
+/**
+ * 全局常量、方法封装模块
+ * 通过原型挂载到Vue属性
+ * 通过 this.Global 调用
+ */
+
+ // 后台管理系统服务器地址
+// export const baseUrl = 'http://123.206.82.234:8080'
+export const baseUrl = 'http://localhost:8081'
+
+export default {
+    baseUrl,
+}
+
+File: ./src\utils\iframe.js
+File Name: iframe.js
+/**
+ * 嵌套页面IFrame模块
+ */
+
+import { baseUrl } from '@/utils/global'
+
+/**
+ * 嵌套页面URL地址
+ * @param {*} url
+ */
+export function getIFramePath (url) {
+  let iframeUrl = ''
+  if(/^iframe:.*/.test(url)) {
+    iframeUrl = url.replace('iframe:', '')
+  } else if(/^http[s]?:\/\/.*/.test(url)) {
+    iframeUrl = url.replace('http://', '')
+    if(iframeUrl.indexOf(":") != -1) {
+      iframeUrl = iframeUrl.substring(iframeUrl.lastIndexOf(":") + 1)
+    }
+  }
+  return iframeUrl
+}
+
+/**
+ * 嵌套页面路由路径
+ * @param {*} url
+ */
+export function getIFrameUrl (url) {
+  let iframeUrl = ''
+  if(/^iframe:.*/.test(url)) {
+    iframeUrl = baseUrl + url.replace('iframe:', '')
+  } else if(/^http[s]?:\/\/.*/.test(url)) {
+    iframeUrl = url
+  }
+  return iframeUrl
+}
+
+
+
+File: ./src\utils\validate.js
+File Name: validate.js
+/**
+ * 邮箱
+ * @param {*} s
+ */
+export function isEmail (s) {
+  return /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/.test(s)
+}
+
+/**
+ * 手机号码
+ * @param {*} s
+ */
+export function isMobile (s) {
+  return /^1[0-9]{10}$/.test(s)
+}
+
+/**
+ * 电话号码
+ * @param {*} s
+ */
+export function isPhone (s) {
+  return /^([0-9]{3,4}-)?[0-9]{7,8}$/.test(s)
+}
+
+/**
+ * URL地址
+ * @param {*} s
+ */
+export function isURL (s) {
+  return /^http[s]?:\/\/.*/.test(s)
+}
+
+
+
+File: ./src\views\Home.vue
+File Name: Home.vue
+<template>
+  <div class="container">
+      <!-- 导航菜单栏 -->
+      <nav-bar></nav-bar>
+      <!-- 头部区域 -->
+      <head-bar></head-bar>
+      <!-- 主内容区域 -->
+      <main-content></main-content>
+  </div>
+</template>
+
+<script>
+import HeadBar from "./HeadBar/HeadBar"
+import NavBar from "./NavBar/NavBar"
+import MainContent from "./MainContent/MainContent"
+export default {
+  components:{
+        HeadBar,
+        NavBar,
+        MainContent
+  }
+};
+</script>
+
+<style scoped lang="scss">
+  .container {
+    position:absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    // background: rgba(224, 234, 235, 0.1);
+  }
+</style>  
+
+File: ./src\views\Login.vue
+File Name: Login.vue
+<template>
+  <el-form :model="loginForm" :rules="fieldRules" ref="loginForm" label-position="left" label-width="0px"
+    class="demo-ruleForm login-container">
+    <h2 class="title" style="padding-left:22px;">系统登录</h2>
+    <el-form-item prop="account">
+      <el-input type="text" v-model="loginForm.account" auto-complete="off" placeholder="账号"></el-input>
+    </el-form-item>
+    <el-form-item prop="password">
+      <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码"></el-input>
+    </el-form-item>
+    <!-- <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox> -->
+    <el-form-item style="width:100%;">
+      <el-button type="primary" style="width:48%;" @click.native.prevent="reset">重 置</el-button>
+      <el-button type="primary" style="width:48%;" @click.native.prevent="login" :loading="loading">登 录</el-button>
+    </el-form-item>
+  </el-form>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+import Cookies from "js-cookie"
+export default {
+  name: 'Login',
+  components: {
+  },
+  data() {
+    return {
+      loading: false,
+      loginForm: {
+        account: 'admin',
+        password: '123456'
+      },
+      fieldRules: {
+        account: [
+          { required: true, message: '请输入账号', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ]
+      },
+      checked: true
+    }
+  },
+  methods: {
+    login() {
+      this.loading = true
+      let userInfo = { name: this.loginForm.account, password: this.loginForm.password }
+      console.log("User Info:", userInfo) // 输出请求参数
+      this.$api.login.login(userInfo).then((res) => {
+        console.log("Response:", res) // 输出响应结果
+        if (res.code != 200) {
+          this.$message({
+            message: res.msg,
+            type: 'error'
+          })
+        } else {
+          sessionStorage.setItem('token', res.data.token) // 放置token到Cookie
+          sessionStorage.setItem('user', userInfo.name) // 保存用户到本地会话
+          let userName = sessionStorage.getItem('user')
+          this.$store.commit('menuRouteLoaded', false) // 要求重新加载导航菜单
+          this.$router.push('/')  // 登录成功，跳转到主页
+        }
+        this.loading = false
+      }).catch((res) => {
+        console.log("Error:", res) // 输出错误信息
+        this.$message({
+          message: res.message,
+          type: 'error'
+        })
+      });
+    },
+    reset() {
+      this.$refs.loginForm.resetFields()
+    },
+    // 切换主题
+    onThemeChange: function (themeColor) {
+      this.$store.commit('setThemeColor', themeColor)
+    }
+  },
+  mounted() {
+  },
+  computed: {
+    ...mapState({
+      themeColor: state => state.app.themeColor
+    })
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.login-container {
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  background-clip: padding-box;
+  margin: 100px auto;
+  width: 350px;
+  padding: 35px 35px 15px 35px;
+  background: #fff;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 0 25px #cac6c6;
+
+  .title {
+    margin: 0px auto 30px auto;
+    text-align: center;
+    color: #505458;
+  }
+
+  .remember {
+    margin: 0px 0px 35px 0px;
+  }
+}
+</style>
+
+File: ./src\views\Core\HeadInfo.vue
+File Name: HeadInfo.vue
+<template>
+  <div class="head-info" :class="center && 'center'">
+    <span>{{ title }}</span>
+    <p><a>{{ content }}</a></p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HeadInfo',
+  props: {
+    title: {
+      default: ''
+    },
+    content: {
+      default: ''
+    },
+    bordered: {
+      default: false
+    },
+    center: {
+      default: true
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+  .head-info {
+    position: relative;
+    text-align: left;
+    padding: 0 32px 0 0;
+    min-width: 125px;
+    &.center {
+      text-align: center;
+      padding: 0 32px;
+    }
+    span {
+      color: rgba(0, 0, 0, .45);
+      display: inline-block;
+      font-size: .95rem;
+      line-height: 32px;
+      margin-bottom: 4px;
+    }
+    p {
+      line-height: 32px;
+      margin: 0;
+      a {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+    }
+  }
+</style>
+
+File: ./src\views\Core\KtButton.vue
+File Name: KtButton.vue
+<template>
+  <el-button :size="size" :type="type" :icon="icon"
+    :loading="loading" :disabled="!hasPerms(perms)" @click="handleClick">
+    {{label}}
+  </el-button>
+</template>
+
+<script>
+import { hasPermission } from '@/permission/index.js'
+export default {
+  name: 'KtButton',
+  props: {
+    label: {  // 按钮显示文本
+      type: String,
+      default: 'Button'
+    },
+    icon: {  // 按钮显示图标
+      type: String,
+      default: ''
+    },
+    size: {  // 按钮尺寸
+      type: String,
+      default: 'mini'
+    },
+    type: {  // 按钮类型
+      type: String,
+      default: null
+    },
+    loading: {  // 按钮加载标识
+      type: Boolean,
+      default: false
+    },
+    disabled: {  // 按钮是否禁用
+      type: Boolean,
+      default: false
+    },
+    perms: {  // 按钮权限标识，外部使用者传入
+      type: String,
+      default: null
+    }
+  },
+  data() {
+    return {
+    }
+  },
+  methods: {
+    handleClick: function () {
+      // 按钮操作处理函数
+      this.$emit('click', {})
+    }, 
+    hasPerms: function (perms) {
+      // 根据权限标识和外部指示状态进行权限判断
+      return hasPermission(perms) & !this.disabled
+    }
+  },
+  mounted() {
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+File: ./src\views\Core\KtTable.vue
+File Name: KtTable.vue
+<template>
+  <div>
+    <!--表格栏-->
+    <el-table :data="data.content" :highlight-current-row="highlightCurrentRow" @selection-change="selectionChange" 
+          @current-change="handleCurrentChange" v-loading="loading" :element-loading-text="$t('action.loading')" :border="border" :stripe="stripe"
+          :show-overflow-tooltip="showOverflowTooltip" :max-height="maxHeight" :height="height" :size="size" :align="align" style="width:100%;" >
+      <el-table-column type="selection" width="40" v-if="showBatchDelete & showOperation"></el-table-column>
+      <el-table-column v-for="column in columns" header-align="center" align="center"
+        :prop="column.prop" :label="column.label" :width="column.width" :min-width="column.minWidth" 
+        :fixed="column.fixed" :key="column.prop" :type="column.type" :formatter="column.formatter"
+        :sortable="column.sortable==null?true:column.sortable">
+      </el-table-column>
+      <el-table-column :label="$t('action.operation')" width="185" fixed="right" v-if="showOperation" header-align="center" align="center">
+        <template slot-scope="scope">
+          <kt-button icon="fa fa-edit" :label="$t('action.edit')" :perms="permsEdit" :size="size" @click="handleEdit(scope.$index, scope.row)" />
+          <kt-button icon="fa fa-trash" :label="$t('action.delete')" :perms="permsDelete" :size="size" type="danger" @click="handleDelete(scope.$index, scope.row)" />
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--分页栏-->
+    <div class="toolbar" style="padding:10px;">
+      <kt-button :label="$t('action.batchDelete')" :perms="permsDelete" :size="size" type="danger" @click="handleBatchDelete()" 
+        :disabled="this.selections.length===0" style="float:left;" v-if="showBatchDelete & showOperation"/>
+      <el-pagination layout="total, prev, pager, next, jumper" @current-change="refreshPageRequest" 
+        :current-page="pageRequest.pageNum" :page-size="pageRequest.pageSize" :total="data.totalSize" style="float:right;">
+      </el-pagination>
+    </div>
+  </div>
+</template>
+
+<script>
+import KtButton from "@/views/Core/KtButton"
+export default {
+  name: 'KtTable',
+  components:{
+			KtButton
+	},
+  props: {
+    columns: Array, // 表格列配置
+    data: Object, // 表格分页数据
+    permsEdit: String,  // 编辑权限标识
+    permsDelete: String,  // 删除权限标识
+    size: { // 尺寸样式
+      type: String,
+      default: 'mini'
+    },
+    align: {  // 文本对齐方式
+      type: String,
+      default: 'left'
+    },
+    maxHeight: {  // 表格最大高度
+      type: Number,
+      default: 420
+    },
+    height: {  // 表格最大高度
+      type: Number,
+      default: 250
+    },
+    showOperation: {  // 是否显示操作组件
+      type: Boolean,
+      default: true
+    },
+    border: {  // 是否显示边框
+      type: Boolean,
+      default: false
+    },
+    stripe: {  // 是否显示斑马线
+      type: Boolean,
+      default: true
+    },
+    highlightCurrentRow: {  // // 是否高亮当前行
+      type: Boolean,
+      default: true
+    },
+    showOverflowTooltip: {  // 是否单行显示
+      type: Boolean,
+      default: true
+    },
+    showBatchDelete: {  // 是否显示操作组件
+      type: Boolean,
+      default: true
+    }
+  },
+  data() {
+    return {
+      // 分页信息
+			pageRequest: {
+				pageNum: 1,
+        pageSize: 10
+      },
+      loading: false,  // 加载标识
+      selections: []  // 列表选中列
+    }
+  },
+  methods: {
+    // 分页查询
+    findPage: function () {
+        this.loading = true
+        let callback = res => {
+          this.loading = false
+        }
+      this.$emit('findPage', {pageRequest:this.pageRequest, callback:callback})
+    },
+    // 选择切换
+    selectionChange: function (selections) {
+      this.selections = selections
+      this.$emit('selectionChange', {selections:selections})
+    },
+    // 选择切换
+    handleCurrentChange: function (val) {
+      this.$emit('handleCurrentChange', {val:val})
+    },
+    // 换页刷新
+		refreshPageRequest: function (pageNum) {
+      this.pageRequest.pageNum = pageNum
+      this.findPage()
+    },
+    // 编辑
+		handleEdit: function (index, row) {
+      this.$emit('handleEdit', {index:index, row:row})
+		},
+    // 删除
+		handleDelete: function (index, row) {
+			this.delete(row.id)
+		},
+		// 批量删除
+		handleBatchDelete: function () {
+			let ids = this.selections.map(item => item.id).toString()
+			this.delete(ids)
+		},
+		// 删除操作
+		delete: function (ids) {
+			this.$confirm('确认删除选中记录吗？', '提示', {
+				type: 'warning'
+			}).then(() => {
+				let params = []
+				let idArray = (ids+'').split(',')
+				for(var i=0; i<idArray.length; i++) {
+					params.push({'id':idArray[i]})
+        }
+        this.loading = true
+        let callback = res => {
+          if(res.code == 200) {
+            this.$message({message: '删除成功', type: 'success'})
+            this.findPage()
+          } else {
+            this.$message({message: '操作失败, ' + res.msg, type: 'error'})
+          }
+          this.loading = false
+        }
+        this.$emit('handleDelete', {params:params, callback:callback})
+			}).catch(() => {
+			})
+		}
+  },
+  mounted() {
+    this.refreshPageRequest(1)
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+File: ./src\views\Core\PersonalPanel.vue
+File Name: PersonalPanel.vue
+<template>
+  <div class="personal-panel">
+    <div class="personal-desc" :style="{ 'background': this.$store.state.app.themeColor }">
+      <div class="avatar-container">
+        <img class="avatar" :src="require('@/assets/user.png')" />
+      </div>
+      <div class="name-role">
+        <span class="sender">{{ user.name }} - {{ user.role }}</span>
+      </div>
+      <div class="registe-info">
+        <span class="registe-info">
+          <li class="fa fa-clock-o"></li>
+        </span>
+      </div>
+    </div>
+    <div class="personal-footer" @click="logout">
+      <li class="fa fa-sign-out"></li>
+      {{ $t("common.logout") }}
+    </div>
+  </div>
+</template>
+
+<script>
+import Cookies from "js-cookie"
+export default {
+  name: 'PersonalPanel',
+  props: {
+    user: {
+      type: Object,
+      default: {
+        name: "admin",
+        avatar: "@/assets/user.png",
+        role: "超级管理员"
+      }
+    }
+  },
+  data() {
+    return {
+    }
+  },
+  methods: {
+    // 退出登录
+    logout: function () {
+      this.$confirm("确认退出吗?", "提示", {
+        type: "warning"
+      })
+        .then(() => {
+          sessionStorage.removeItem("user")
+          sessionStorage.removeItem("token")
+          this.$router.push("/login")
+          this.$api.login.logout().then((res) => {
+          }).catch(function (res) {
+          })
+        })
+        .catch(() => { })
+    },
+    // 删除cookie
+    deleteCookie: function (name) {
+      Cookies.remove(name)
+    },
+
+  },
+  mounted() {
+  }
+}
+</script>
+
+<style scoped>
+.personal-panel {
+  font-size: 14px;
+  width: 280px;
+  text-align: center;
+  border-color: rgba(180, 190, 190, 0.2);
+  border-width: 1px;
+  border-style: solid;
+  background: rgba(182, 172, 172, 0.1);
+  margin: -14px;
+}
+
+.personal-desc {
+  padding: 15px;
+  color: #fff;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 90px;
+}
+
+.name-role {
+  font-size: 16px;
+  padding: 5px;
+}
+
+.personal-relation {
+  font-size: 16px;
+  padding: 12px;
+  margin-right: 1px;
+  background: rgba(200, 209, 204, 0.3);
+}
+
+.relation-item {
+  padding: 12px;
+}
+
+.relation-item:hover {
+  cursor: pointer;
+  color: rgb(19, 138, 156);
+}
+
+.main-operation {
+  padding: 8px;
+  margin-right: 1px;
+  /* background: rgba(175, 182, 179, 0.3); */
+  border-color: rgba(201, 206, 206, 0.2);
+  border-top-width: 1px;
+  border-top-style: solid;
+}
+
+.main-operation-item {
+  margin: 15px;
+}
+
+.other-operation {
+  padding: 15px;
+  margin-right: 1px;
+  text-align: left;
+  border-color: rgba(180, 190, 190, 0.2);
+  border-top-width: 1px;
+  border-top-style: solid;
+}
+
+.other-operation-item {
+  padding: 12px;
+}
+
+.other-operation-item:hover {
+  cursor: pointer;
+  background: #9e94941e;
+  color: rgb(19, 138, 156);
+}
+
+.personal-footer {
+  margin-right: 1px;
+  font-size: 14px;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-color: rgba(180, 190, 190, 0.2);
+  border-top-width: 1px;
+  border-top-style: solid;
+}
+
+.personal-footer:hover {
+  cursor: pointer;
+  color: rgb(19, 138, 156);
+  background: #b1a6a61e;
+}
+</style>
+
+File: ./src\views\Core\TableColumnFilterDialog.vue
+File Name: TableColumnFilterDialog.vue
+<template>
+		<!--表格显示列界面-->
+		<el-dialog title="表格显示列" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
+			<el-table ref="fitlerTable" :data="columns"  height="330px" tooltip-effect="dark" header-align="left" align="left"
+				:size="size" style="width: 100%" @selection-change="selectionChange">
+				<el-table-column type="selection" width="40">
+				</el-table-column>
+				<el-table-column label="属性">
+					<template slot-scope="scope">{{ scope.row.prop }}</template>
+				</el-table-column>
+				<el-table-column label="列名">
+					<template slot-scope="scope">
+            <el-input :size="size" v-model="scope.row.label"></el-input>
+          </template>
+				</el-table-column>
+				<el-table-column label="最小宽度">
+					<template slot-scope="scope">
+            <el-input :size="size" v-model="scope.row.minWidth"></el-input>
+          </template>
+				</el-table-column>
+			</el-table>
+			<div slot="footer" class="dialog-footer">
+				<el-button :size="size" @click.native="dialogVisible = false">{{$t('action.cancel')}}</el-button>
+				<el-button :size="size" type="primary" @click.native="handleFilterColumns">{{$t('action.comfirm')}}</el-button>
+			</div>
+		</el-dialog>
+</template>
+
+<script>
+export default {
+  name: 'TableColumnFilterDialog',
+  components:{
+  },
+  props: {
+    columns: {
+      type: Array,
+      default: []
+    },
+    size: {
+      type: String,
+      default: 'mini'
+    }
+  },
+  data() {
+    return {
+      selections: [],  // 列表选中列
+      dialogVisible: false
+    }
+  },
+  methods: {
+    // 选择切换
+    selectionChange: function (selections) {
+      this.selections = selections
+      
+    },
+    // 设置可见性
+    setDialogVisible: function (visible) {
+      this.dialogVisible = visible
+    },
+		// 处理表格列过滤显示
+    handleFilterColumns: function () {
+      let filterColumns = []
+      for(let i = 0; i <this.columns.length; i++) {
+        let column = this.columns[i]
+        if(this.hasColumn(column)) {
+          filterColumns.push(column)
+        }
+      }
+			this.$emit('handleFilterColumns', {filterColumns: JSON.parse(JSON.stringify(filterColumns))})
+    },
+    hasColumn: function (column) {
+      for(let i = 0; i <this.selections.length; i++) {
+        let col = this.selections[i]
+        if(column.prop == col.prop) {
+          return true
+        }
+      }
+      return false
+    }
+  },
+  mounted() {
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+File: ./src\views\Core\TableTreeColumn.vue
+File Name: TableTreeColumn.vue
+<template>
+  <el-table-column :prop="prop" v-bind="$attrs">
+    <template slot-scope="scope">
+      <span @click.prevent="toggleHandle(scope.$index, scope.row)" :style="childStyles(scope.row)">
+        <i :class="iconClasses(scope.row)" :style="iconStyles(scope.row)"></i>
+        {{ scope.row[prop] }}
+      </span>
+    </template>
+  </el-table-column>
+</template>
+
+<script>
+  import isArray from 'lodash/isArray'
+  export default {
+    name: 'table-tree-column',
+    props: {
+      prop: {
+        type: String
+      },
+      treeKey: {
+        type: String,
+        default: 'id'
+      },
+      parentKey: {
+        type: String,
+        default: 'parentId'
+      },
+      levelKey: {
+        type: String,
+        default: 'level'
+      },
+      childKey: {
+        type: String,
+        default: 'children'
+      }
+    },
+    methods: {
+      childStyles (row) {
+        return { 'padding-left': (row[this.levelKey] * 25) + 'px' }
+      },
+      iconClasses (row) {
+        return [ !row._expanded ? 'el-icon-caret-right' : 'el-icon-caret-bottom' ]
+      },
+      iconStyles (row) {
+        return { 'visibility': this.hasChild(row) ? 'visible' : 'hidden' }
+      },
+      hasChild (row) {
+        return (isArray(row[this.childKey]) && row[this.childKey].length >= 1) || false
+      },
+      // 切换处理
+      toggleHandle (index, row) {
+        if (this.hasChild(row)) {
+          var data = this.$parent.store.states.data.slice(0)
+          data[index]._expanded = !data[index]._expanded
+          if (data[index]._expanded) {
+            data = data.splice(0, index + 1).concat(row[this.childKey]).concat(data)
+          } else {
+            data = this.removeChildNode(data, row[this.treeKey])
+          }
+          this.$parent.store.commit('setData', data)
+          this.$nextTick(() => {
+            this.$parent.doLayout()
+          })
+        }
+      },
+      // 移除子节点
+      removeChildNode (data, parentId) {
+        var parentIds = isArray(parentId) ? parentId : [parentId]
+        if (parentId.length <= 0) {
+          return data
+        }
+        var ids = []
+        for (var i = 0; i < data.length; i++) {
+          if (parentIds.indexOf(data[i][this.parentKey]) !== -1 && parentIds.indexOf(data[i][this.treeKey]) === -1) {
+            ids.push(data.splice(i, 1)[0][this.treeKey])
+            i--
+          }
+        }
+        return this.removeChildNode(data, ids)
+      }
+    }
+  }
+</script>
+
+
+File: ./src\views\Error\404.vue
+File Name: 404.vue
+<template>
+  <div class="site-wrapper site-page--not-found">
+    <div class="site-content__wrapper">
+      <div class="site-content">
+        <h2 class="not-found-title">404</h2>
+        <p class="not-found-desc">抱歉！您访问的页面<em>失联</em>啦 ...</p>
+        <el-button @click="$router.go(-1)">返回上一页</el-button>
+        <el-button type="primary" class="not-found-btn-gohome" @click="$router.push('/')">进入首页</el-button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  export default {
+  }
+</script>
+
+<style lang="scss">
+  .site-wrapper.site-page--not-found {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    .site-content__wrapper {
+      padding: 0;
+      margin: 0;
+      background-color: #fff;
+    }
+    .site-content {
+      position: fixed;
+      top: 15%;
+      left: 50%;
+      z-index: 2;
+      padding: 30px;
+      text-align: center;
+      transform: translate(-50%, 0);
+    }
+    .not-found-title {
+      margin: 20px 0 15px;
+      font-size: 8em;
+      font-weight: 500;
+      color: rgb(55, 71, 79);
+    }
+    .not-found-desc {
+      margin: 0 0 30px;
+      font-size: 26px;
+      text-transform: uppercase;
+      color: rgb(118, 131, 143);
+      > em {
+        font-style: normal;
+        color: #ee8145;
+      }
+    }
+    .not-found-btn-gohome {
+      margin-left: 30px;
+    }
+  }
+</style>
+
+
+File: ./src\views\HeadBar\HeadBar.vue
+File Name: HeadBar.vue
+<template>
+  <div class="headbar" :style="{ 'background': themeColor }"
+    :class="$store.state.app.collapse ? 'position-collapse-left' : 'position-left'">
+    <!-- 导航收缩 -->
+    <span class="hamburg">
+      <el-menu class="el-menu-demo" :background-color="themeColor" text-color="#fff" :active-text-color="themeColor"
+        mode="horizontal">
+        <el-menu-item index="1" @click="onCollapse">
+          <hamburger :isActive="collapse"></hamburger>
+        </el-menu-item>
+      </el-menu>
+    </span>
+    <!-- 工具栏 -->
+    <span class="toolbar">
+      <el-menu class="el-menu-demo" :background-color="themeColor" :text-color="themeColor"
+        :active-text-color="themeColor" mode="horizontal">
+        <el-menu-item index="1">
+          <!-- 用户信息 -->
+          <span class="user-info"><img :src="user.avatar" />{{ user.name }}</span>
+          <el-popover ref="popover-personal" placement="bottom-end" trigger="click" :visible-arrow="false">
+            <personal-panel :user="user"></personal-panel>
+          </el-popover>
+        </el-menu-item>
+      </el-menu>
+    </span>
+  </div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+import mock from "@/mock/index"
+import Hamburger from "@/components/Hamburger"
+import Action from "@/components/Toolbar/Action"
+import PersonalPanel from "@/views/Core/PersonalPanel"
+export default {
+  components: {
+    Hamburger,
+    Action,
+    PersonalPanel
+  },
+  data() {
+    return {
+      user: {
+        name: "Louis",
+        avatar: "",
+        role: "超级管理员",
+        registeInfo: "注册时间：2018-12-20 "
+      },
+      activeIndex: '1',
+      langVisible: false
+    }
+  },
+  methods: {
+    openWindow(url) {
+      window.open(url)
+    },
+    selectNavBar(key, keyPath) {
+      console.log(key, keyPath)
+    },
+    // 折叠导航栏
+    onCollapse: function () {
+      this.$store.commit('onCollapse')
+    },
+    // 切换主题
+    onThemeChange: function (themeColor) {
+      this.$store.commit('setThemeColor', themeColor)
+    },
+    // 语言切换
+    changeLanguage(lang) {
+      lang === '' ? 'zh_cn' : lang
+      this.$i18n.locale = lang
+      this.langVisible = false
+    }
+  },
+  mounted() {
+    this.sysName = "权限管理系统"
+    var user = sessionStorage.getItem("user")
+    if (user) {
+      this.user.name = user
+      this.user.avatar = require("@/assets/user.png")
+    }
+  },
+  computed: {
+    ...mapState({
+      themeColor: state => state.app.themeColor,
+      collapse: state => state.app.collapse
+    })
+  }
+}
+</script>
+
+<style scoped lang="scss">
+.headbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1030;
+  height: 60px;
+  line-height: 60px;
+  border-color: rgba(180, 190, 190, 0.8);
+  border-left-width: 1px;
+  border-left-style: solid;
+}
+
+.hamburg,
+.navbar {
+  float: left;
+}
+
+.toolbar {
+  float: right;
+}
+
+.lang-item {
+  font-size: 16px;
+  padding-left: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  cursor: pointer;
+}
+
+.lang-item:hover {
+  font-size: 18px;
+  background: #b0d6ce4d;
+}
+
+.user-info {
+  font-size: 20px;
+  color: #fff;
+  cursor: pointer;
+
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    margin: 10px 0px 10px 10px;
+    float: right;
+  }
+}
+
+.badge {
+  line-height: 18px;
+}
+
+.position-left {
+  left: 200px;
+}
+
+.position-collapse-left {
+  left: 65px;
+}
+</style>
+
+File: ./src\views\IFrame\IFrame.vue
+File Name: IFrame.vue
+<template>
+  <div class="iframe-container">
+    <iframe :src="src" scrolling="auto" frameborder="0" class="frame" :onload="onloaded()">
+    </iframe>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      src: "",
+      loading: null
+    };
+  },
+  methods: {
+    // 获取路径
+    resetSrc: function(url) {
+      this.src = url
+      this.load()
+    },
+    load: function() {
+      this.loading = this.$loading({  
+        lock: true,
+        text: "loading...",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.5)",
+        // fullscreen: false,
+        target: document.querySelector("#main-container ")
+      })
+    },
+    onloaded: function() {
+      if(this.loading) {
+        this.loading.close()
+      }
+    }
+  },
+  mounted() {
+    this.resetSrc(this.$store.state.iframe.iframeUrl);
+  },
+  watch: {
+    $route: {
+      handler: function(val, oldVal) {
+        // 如果是跳转到嵌套页面，切换iframe的url
+        this.resetSrc(this.$store.state.iframe.iframeUrl);
+      }
+    }
+  }
+};
+</script>
+
+<style lang="scss">
+.iframe-container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;;
+  bottom: 0px;
+  .frame {
+    width: 100%;
+    height: 100%;
+  }
+}
+</style>
+
+
+File: ./src\views\Intro\Intro.vue
+File Name: Intro.vue
+<template>
+  <div>
+    <div class="card bbxx">
+      <p class="title">
+        <i class="fa fa-server"></i>个人信息
+      </p>
+      <div class="table" :model="personalInfo">
+        <p>
+          <span class="tit">用户名</span>{{ personalInfo.name }}
+        </p>
+        <p>
+          <span class="tit">联系方式</span>{{ personalInfo.mobile }}
+        </p>
+        <p>
+          <span class="tit">邮件地址：</span>{{ personalInfo.email }}
+        </p>
+        <p>
+          <span class="tit">上次登陆时间</span>{{ personalInfo.lastUpdateTime }}
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import moment from "moment";
+moment.locale("zh-cn");
+export default {
+  name: "HomePage",
+  data() {
+    return {
+      editable: false,
+      newImageUrl: require("@/assets/user.png"),
+      personalInfo: {
+        id: 0,
+        name: '',
+        password: '123456',
+        deptId: 1,
+        deptName: '',
+        email: 'test@qq.com',
+        mobile: '123',
+        status: 1,
+        lastUpdateTime: '2019-01-01'
+      }
+    };
+  },
+  methods: {
+  },
+  mounted() {
+    var user = sessionStorage.getItem("user")
+    this.personalInfo.username = user
+    this.$api.user.findByName({ 'name': user }).then((res) => {
+      this.personalInfo = res.data
+    })
+  }
+};
+</script>
+
+<style lang="scss">
+* {
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+.el-row {
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+}
+
+$top: top;
+$bottom: bottom;
+$left: left;
+$right: right;
+$leftright: (
+  $left,
+  $right
+);
+$pinkk: #eec2d3;
+$bluee: #409eff;
+$yelloww: #f4d884;
+$grennn: #89dda0;
+$purplee: #78a2ea;
+$lightBluee: #b8d6ff;
+$list: bluee pinkk yelloww grennn purplee lightBluee;
+$list1: $bluee $pinkk $yelloww $grennn $purplee $lightBluee;
+
+%shadow {
+  background: #fff;
+  -webkit-box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(0, 0, 0, 0.2);
+
+  .title {
+    font-size: 14px;
+    padding: 10px;
+
+    i {
+      margin-#{$right}: 5px;
+    }
+  }
+}
+
+@mixin flex($direction: row, $content: space-between) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $content;
+}
+
+.card {
+  color: #666;
+  @extend %shadow;
+
+  ul {
+    @include flex;
+
+    li {
+      flex: 1;
+
+      a {
+        color: #666666;
+        align-items: center;
+        padding-#{$top}: 20px;
+        padding-#{$bottom}: 20px;
+        @include flex(column);
+
+        span {
+          height: 44px;
+        }
+
+        .num {
+          line-height: 44px;
+          font-size: 42px;
+          color: $bluee;
+          margin: 0px;
+        }
+      }
+
+      .kjfs-bluee {
+        color: $bluee;
+      }
+
+      .kjfs-pinkk {
+        color: $pinkk;
+      }
+
+      .kjfs-yelloww {
+        color: $yelloww;
+      }
+
+      .kjfs-grennn {
+        color: $grennn;
+      }
+
+      .kjfs-purplee {
+        color: $purplee;
+      }
+
+      .kjfs-lightBluee {
+        color: $lightBluee;
+      }
+
+      &:hover {
+        .kjfs-bluee {
+          color: #ffffff;
+          background: $bluee;
+        }
+
+        .kjfs-pinkk {
+          color: #ffffff;
+          background: $pinkk;
+        }
+
+        .kjfs-yelloww {
+          color: #ffffff;
+          background: $yelloww;
+        }
+
+        .kjfs-grennn {
+          color: #ffffff;
+          background: $grennn;
+        }
+
+        .kjfs-purplee {
+          color: #ffffff;
+          background: $purplee;
+        }
+
+        .kjfs-lightBluee {
+          color: #ffffff;
+          background: $lightBluee;
+        }
+      }
+    }
+  }
+
+  .table {
+    padding: 21px;
+
+    p {
+      height: 52px;
+      line-height: 52px;
+      border: 1px solid #cccccc;
+      overflow: hidden;
+      border-#{$top}: none;
+      @include flex(null, start);
+
+      &:first-child {
+        border-#{$top}: 1px solid #cccccc;
+      }
+
+      .tit {
+        width: 90px;
+        min-width: 90px;
+        height: 100%;
+        text-align: center;
+        border-#{$right}: 1px solid #cccccc;
+        margin-#{$right}: 18px;
+      }
+
+      span.gitbox {
+        flex: 1;
+        height: 100%;
+        overflow: hidden;
+        @include flex(row, start);
+
+        a {
+          &:first-child {
+            margin-#{$right}: 30px;
+          }
+        }
+      }
+    }
+  }
+}
+
+#lineEcharts {
+  margin-#{$top}: 30px;
+  padding-#{$top}: 30px;
+  @extend %shadow;
+}
+
+#maintable {
+  margin-#{$top}: 30px;
+  padding-#{$top}: 10px;
+  @extend %shadow;
+}
+
+.user_img {
+  /*width: 80%;*/
+  padding: 20px;
+  margin: 0;
+  text-align: center;
+
+  // border: 1px solid #dee1e2;
+  img {
+    max-width: 130px;
+    max-height: 130px;
+  }
+}
+
+.user_info {
+  /*padding-bottom: 20px;*/
+  border: 1px solid #dee1e2;
+
+  h2 {
+    margin: 0;
+    font-weight: normal;
+    padding: 10px 20px;
+    border-bottom: 1px solid #dee1e2;
+
+    .i_edit {
+      float: right;
+      font-size: 16px;
+      color: #7ab8ed;
+    }
+  }
+}
+
+.user_info_form,
+.user_info_text {
+  padding: 20px;
+}
+
+#income,
+#interest {
+  width: 100%;
+  height: 400px;
+}
+
+.el-form-item {
+  margin-bottom: 0;
+}
+
+.avatar-uploader {
+  margin-bottom: 32px;
+}
+</style>
+
+File: ./src\views\MainContent\MainContent.vue
+File Name: MainContent.vue
+<template>
+  <div id="main-container" class="main-container"
+    :class="$store.state.app.collapse ? 'position-collapse-left' : 'position-left'">
+    <!-- 标签页 -->
+    <div class="tab-container">
+      <el-tabs class="tabs" :class="$store.state.app.collapse ? 'position-collapse-left' : 'position-left'"
+        v-model="mainTabsActiveName" :closable="true" type="card" @tab-click="selectedTabHandle"
+        @tab-remove="removeTabHandle">
+        <el-dropdown class="tabs-tools" :show-timeout="0" trigger="hover">
+        </el-dropdown>
+        <el-tab-pane v-for="item in mainTabs" :key="item.name" :label="item.title" :name="item.name">
+          <span slot="label"><i :class="item.icon"></i> {{ item.title }} </span>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+    <!-- 主内容区域 -->
+    <div class="main-content">
+      <keep-alive>
+        <transition name="fade" mode="out-in">
+          <router-view></router-view>
+        </transition>
+      </keep-alive>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+    }
+  },
+  computed: {
+    mainTabs: {
+      get() { return this.$store.state.tab.mainTabs },
+      set(val) { this.$store.commit('updateMainTabs', val) }
+    },
+    mainTabsActiveName: {
+      get() { return this.$store.state.tab.mainTabsActiveName },
+      set(val) { this.$store.commit('updateMainTabsActiveName', val) }
+    }
+  },
+  methods: {
+    // tabs, 选中tab
+    selectedTabHandle(tab) {
+      tab = this.mainTabs.filter(item => item.name === tab.name)
+      if (tab.length >= 1) {
+        this.$router.push({ name: tab[0].name })
+      }
+    },
+    // tabs, 删除tab
+    removeTabHandle(tabName) {
+      this.mainTabs = this.mainTabs.filter(item => item.name !== tabName)
+      if (this.mainTabs.length >= 1) {
+        // 当前选中tab被删除
+        if (tabName === this.mainTabsActiveName) {
+          this.$router.push({ name: this.mainTabs[this.mainTabs.length - 1].name }, () => {
+            this.mainTabsActiveName = this.$route.name
+          })
+        }
+      } else {
+        this.$router.push("/")
+      }
+    }
+  }
+}
+</script>
+
+<style scoped lang="scss">
+.main-container {
+  padding: 0 5px 5px;
+  position: absolute;
+  top: 60px;
+  left: 1px;
+  right: 1px;
+  bottom: 0px;
+
+  // background: rgba(56, 5, 114, 0.5);
+  .tabs {
+    position: fixed;
+    top: 60px;
+    right: 50px;
+    padding-left: 0px;
+    padding-right: 2px;
+    z-index: 1020;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    background: rgb(255, 253, 255);
+    border-color: rgba(200, 206, 206, 0.5);
+    // border-left-width: 1px;
+    // border-left-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+  }
+
+  .tabs-tools {
+    position: fixed;
+    top: 60px;
+    right: 0;
+    z-index: 1020;
+    height: 40px;
+    // padding: 0 10px;
+    font-size: 14px;
+    line-height: 40px;
+    cursor: pointer;
+    border-color: rgba(200, 206, 206, 0.5);
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    background: rgba(255, 255, 255, 1);
+  }
+
+  .tabs-tools:hover {
+    background: rgba(200, 206, 206, 1);
+  }
+
+  .main-content {
+    position: absolute;
+    top: 45px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    padding: 5px;
+    // background: rgba(209, 212, 212, 0.5);
+  }
+}
+
+.position-left {
+  left: 200px;
+}
+
+.position-collapse-left {
+  left: 65px;
+}
+</style>
+
+File: ./src\views\NavBar\NavBar.vue
+File Name: NavBar.vue
+<template>
+	<div class="menu-bar-container">
+    <!-- logo -->
+    <div class="logo" :style="{'background-color':themeColor}" :class="collapse?'menu-bar-collapse-width':'menu-bar-width'"
+      @click="$router.push('/')">
+        <img v-if="collapse" src="@/assets/logo.png"/> <div>{{collapse?'':appName}}</div>
+    </div>
+    <!-- 导航菜单 -->
+    <el-menu ref="navmenu" default-active="1" :class="collapse?'menu-bar-collapse-width':'menu-bar-width'"
+      :collapse="collapse" :collapse-transition="false" :unique-opened="true  "
+      @open="handleopen" @close="handleclose" @select="handleselect">
+      <!-- 导航菜单树组件，动态加载菜单 -->
+      <menu-tree v-for="item in navTree" :key="item.id" :menu="item"></menu-tree>
+    </el-menu>
+	</div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+import MenuTree from "@/components/MenuTree"
+export default {
+  components:{
+        MenuTree
+  },
+  computed: {
+    ...mapState({
+      appName: state=>state.app.appName,
+      themeColor: state=>state.app.themeColor,
+      collapse: state=>state.app.collapse,
+      navTree: state=>state.menu.navTree
+    }),
+    mainTabs: {
+      get () { return this.$store.state.tab.mainTabs },
+      set (val) { this.$store.commit('updateMainTabs', val) }
+    },
+    mainTabsActiveName: {
+      get () { return this.$store.state.tab.mainTabsActiveName },
+      set (val) { this.$store.commit('updateMainTabsActiveName', val) }
+    }
+  },
+  watch: {
+    $route: 'handleRoute'
+  },
+  created () {
+    this.handleRoute(this.$route)
+  },
+  methods: {
+    handleopen() {
+      console.log('handleopen')
+    },
+    handleclose() {
+      console.log('handleclose')
+    },
+    handleselect(a, b) {
+      console.log('handleselect')
+    },
+    // 路由操作处理
+    handleRoute (route) {
+      // tab标签页选中, 如果不存在则先添加
+      var tab = this.mainTabs.filter(item => item.name === route.name)[0]
+      if (!tab) {
+        tab = {
+          name: route.name,
+          title: route.name,
+          icon: route.meta.icon
+        }
+        this.mainTabs = this.mainTabs.concat(tab)
+      }
+      this.mainTabsActiveName = tab.name
+      // 切换标签页时同步更新高亮菜单
+      if(this.$refs.navmenu != null) {
+        this.$refs.navmenu.activeIndex = '' + route.meta.index
+        this.$refs.navmenu.initOpenedMenu()
+      }
+    }
+  }
+}
+</script>
+
+<style scoped lang="scss">
+.menu-bar-container {
+  position: fixed;
+  top: 0px;
+  left: 0;
+  bottom: 0;
+  z-index: 1020;
+  .el-menu {
+    position:absolute;
+    top: 60px;
+    bottom: 0px;
+    text-align: left;
+    // background-color: #2968a30c;
+  }
+  .logo {
+    position:absolute;
+    top: 0px;
+    height: 60px;   
+    line-height: 60px;
+    background: #545c64;
+    cursor:pointer;
+    img {
+        width: 40px;
+        height: 40px;
+        border-radius: 0px;
+        margin: 10px 10px 10px 10px;
+        float: left;
+    }
+    div {
+      font-size: 25px;
+      color: white;
+      text-align: left;
+      padding-left: 20px;
+    }
+  }
+  .menu-bar-width {
+    width: 200px;
+  }
+  .menu-bar-collapse-width {
+    width: 65px;
+  }
+}
+
+</style>
+
+File: ./src\views\Sys\Dept.vue
+File Name: Dept.vue
+<template>
+  <div class="page-container">
+    <!--工具栏-->
+    <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
+      <el-form :inline="true" :model="filters" :size="size">
+        <el-form-item>
+          <el-input v-model="filters.name" placeholder="名称"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <kt-button icon="fa fa-search" :label="$t('action.search')" perms="sys:dept:view" type="primary"
+            @click="findTreeData(null)" />
+        </el-form-item>
+        <el-form-item>
+          <kt-button icon="fa fa-plus" :label="$t('action.add')" perms="sys:dept:add" type="primary"
+            @click="handleAdd" />
+        </el-form-item>
+      </el-form>
+    </div>
+    <!--表格树内容栏-->
+    <el-table :data="tableTreeDdata" stripe size="mini" style="width: 100%;" default-expand-all rowKey="id"
+      v-loading="loading" element-loading-text="$t('action.loading')">
+      <!-- <el-table-column
+        prop="id" header-align="center" align="center" width="100" label="ID">
+      </el-table-column> -->
+      <table-tree-column prop="name" header-align="center" treeKey="id" width="180" label="名称">
+      </table-tree-column>
+      <el-table-column prop="parentName" header-align="center" align="center" width="120" label="上级机构">
+      </el-table-column>
+      <el-table-column prop="orderNum" header-align="center" align="center" label="排序">
+      </el-table-column>
+      <el-table-column prop="createBy" header-align="center" align="center" label="创建人">
+      </el-table-column>
+      <el-table-column prop="createTime" header-align="center" align="center" label="创建时间" :formatter="dateFormat">
+      </el-table-column>
+      <el-table-column fixed="right" header-align="center" align="center" width="185" :label="$t('action.operation')">
+        <template slot-scope="scope">
+          <kt-button icon="fa fa-edit" :label="$t('action.edit')" perms="sys:dept:edit"
+            @click="handleEdit(scope.row)" />
+          <kt-button icon="fa fa-trash" :label="$t('action.delete')" perms="sys:dept:delete" type="danger"
+            @click="handleDelete(scope.row)" />
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 新增修改界面 -->
+    <el-dialog :title="!dataForm.id ? '新增' : '修改'" width="40%" :visible.sync="dialogVisible"
+      :close-on-click-modal="false">
+      <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="submitForm()" label-width="80px"
+        :size="size" style="text-align:left;">
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="dataForm.name" placeholder="名称"></el-input>
+        </el-form-item>
+        <el-form-item label="上级机构" prop="parentName">
+          <popup-tree-input :data="popupTreeData" :props="popupTreeProps"
+            :prop="dataForm.parentName == null ? '顶级菜单' : dataForm.parentName" :nodeKey="'' + dataForm.parentId"
+            :currentChangeHandle="handleTreeSelectChange">
+          </popup-tree-input>
+        </el-form-item>
+        <el-form-item v-if="dataForm.type !== 2" label="排序编号" prop="orderNum">
+          <el-input-number v-model="dataForm.orderNum" controls-position="right" :min="0"
+            label="排序编号"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button :size="size" @click="dialogVisible = false">{{ $t('action.cancel') }}</el-button>
+        <el-button :size="size" type="primary" @click="submitForm()">{{ $t('action.comfirm') }}</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import KtButton from "@/views/Core/KtButton"
+import TableTreeColumn from '@/views/Core/TableTreeColumn'
+import PopupTreeInput from "@/components/PopupTreeInput"
+import { format } from "@/utils/datetime"
+export default {
+  components: {
+    PopupTreeInput,
+    KtButton,
+    TableTreeColumn,
+  },
+  data() {
+    return {
+      size: 'small',
+      loading: false,
+      filters: {
+        name: ''
+      },
+      pageRequest: {},
+      tableTreeDdata: [],
+      dialogVisible: false,
+      dataForm: {
+        id: 0,
+        name: '',
+        parentId: 0,
+        parentName: '',
+        orderNum: 0
+      },
+      dataRule: {
+        name: [
+          { required: true, message: '机构名称不能为空', trigger: 'blur' }
+        ],
+        parentName: [
+          { required: true, message: '上级机构不能为空', trigger: 'change' }
+        ]
+      },
+      popupTreeData: [],
+      popupTreeProps: {
+        label: 'name',
+        children: 'children'
+      }
+    }
+  },
+  methods: {
+    // 获取数据
+    findTreeData: function () {
+      this.loading = true
+      this.$api.dept.findDeptTree({ 'name': this.filters.name }).then((res) => {
+        this.tableTreeDdata = res.data
+        this.popupTreeData = this.getParentMenuTree(res.data)
+        this.loading = false
+      })
+    },
+    // 获取上级机构树
+    getParentMenuTree: function (tableTreeDdata) {
+      let parent = {
+        parentId: 0,
+        name: '顶级菜单',
+        children: tableTreeDdata
+      }
+      return [parent]
+    },
+    // 显示新增界面
+    handleAdd: function () {
+      this.dialogVisible = true
+      this.dataForm = {
+        id: 0,
+        name: '',
+        parentId: 0,
+        parentName: '',
+        orderNum: 0
+      }
+    },
+    // 显示编辑界面
+    handleEdit: function (row) {
+      this.dialogVisible = true
+      Object.assign(this.dataForm, row);
+    },
+    // 删除
+    handleDelete(row) {
+      this.$confirm('确认删除选中记录吗？', '提示', {
+        type: 'warning'
+      }).then(() => {
+        let params = this.getDeleteIds([], row)
+        this.$api.dept.batchDelete(params).then(res => {
+          this.findTreeData()
+          this.$message({ message: '删除成功', type: 'success' })
+        })
+      })
+    },
+    // 获取删除的包含子机构的id列表
+    getDeleteIds(ids, row) {
+      ids.push({ id: row.id })
+      if (row.children != null) {
+        for (let i = 0, len = row.children.length; i < len; i++) {
+          this.getDeleteIds(ids, row.children[i])
+        }
+      }
+      return ids
+    },
+    // 机构树选中
+    handleTreeSelectChange(data, node) {
+      this.dataForm.parentId = data.id
+      this.dataForm.parentName = data.name
+    },
+    // 表单提交
+    submitForm() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          this.$confirm('确认提交吗？', '提示', {}).then(() => {
+            this.editLoading = true
+            let params = Object.assign({}, this.dataForm)
+            this.$api.dept.save(params).then((res) => {
+              this.editLoading = false
+              if (res.code == 200) {
+                this.$message({ message: '操作成功', type: 'success' })
+                this.dialogVisible = false
+                this.$refs['dataForm'].resetFields()
+              } else {
+                this.$message({ message: '操作失败, ' + res.msg, type: 'error' })
+              }
+              this.findTreeData()
+            })
+          })
+        }
+      })
+    },
+    // 时间格式化
+    dateFormat: function (row, column, cellValue, index) {
+      return format(row[column.property])
+    }
+
+  },
+  mounted() {
+    this.findTreeData()
+  }
+}
+</script>
+
+<style scoped></style>
+
+File: ./src\views\Sys\Menu.vue
+File Name: Menu.vue
+<template>
+  <div class="page-container">
+    <!--工具栏-->
+    <div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
+      <el-form :inline="true" :model="filters" :size="size">
+        <el-form-item>
+          <el-input v-model="filters.name" placeholder="名称"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <kt-button icon="fa fa-search" :label="$t('action.search')" perms="sys:menu:view" type="primary"
+            @click="findTreeData(null)" />
+        </el-form-item>
+        <el-form-item>
+          <kt-button icon="fa fa-plus" :label="$t('action.add')" perms="sys:menu:add" type="primary"
+            @click="handleAdd" />
+        </el-form-item>
+      </el-form>
+    </div>
+    <!--表格树内容栏-->
+    <el-table :data="tableTreeDdata" stripe size="mini" style="width: 100%;" rowKey="id" v-loading="loading"
+      element-loading-text="$t('action.loading')">
+      <!-- <el-table-column
+        prop="id" header-align="center" align="center" width="100" label="ID">
+      </el-table-column> -->
+      <table-tree-column prop="name" header-align="center" treeKey="id" width="180" label="名称">
+      </table-tree-column>
+      <el-table-column header-align="center" align="center" label="图标">
+        <template slot-scope="scope">
+          <i :class="scope.row.icon || ''"></i>
+        </template>
+      </el-table-column>
+      <el-table-column prop="type" header-align="center" align="center" label="类型">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.type === 0" size="small">目录</el-tag>
+          <el-tag v-else-if="scope.row.type === 1" size="small" type="success">菜单</el-tag>
+          <el-tag v-else-if="scope.row.type === 2" size="small" type="info">按钮</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="parentName" header-align="center" align="center" width="120" label="上级菜单">
+      </el-table-column>
+      <el-table-column prop="url" header-align="center" align="center" width="150" :show-overflow-tooltip="true"
+        label="菜单URL">
+      </el-table-column>
+      <el-table-column prop="perms" header-align="center" align="center" width="150" :show-overflow-tooltip="true"
+        label="授权标识">
+      </el-table-column>
+      <el-table-column prop="orderNum" header-align="center" align="center" label="排序">
+      </el-table-column>
+      <el-table-column fixed="right" header-align="center" align="center" width="185" :label="$t('action.operation')">
+        <template slot-scope="scope">
+          <kt-button icon="fa fa-edit" :label="$t('action.edit')" perms="sys:menu:edit"
+            @click="handleEdit(scope.row)" />
+          <kt-button icon="fa fa-trash" :label="$t('action.delete')" perms="sys:menu:delete" type="danger"
+            @click="handleDelete(scope.row)" />
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+
+<script>
+import KtButton from "@/views/Core/KtButton";
+import TableTreeColumn from "@/views/Core/TableTreeColumn";
+import PopupTreeInput from "@/components/PopupTreeInput";
+export default {
+  components: {
+    PopupTreeInput,
+    KtButton,
+    TableTreeColumn
+  },
+  data() {
+    return {
+      size: "small",
+      loading: false,
+      filters: {
+        name: ""
+      },
+      tableTreeDdata: [],
+      dialogVisible: false,
+      menuTypeList: ["目录", "菜单", "按钮"],
+      dataForm: {
+        id: 0,
+        type: 1,
+        name: "",
+        parentId: 0,
+        parentName: "",
+        url: "",
+        perms: "",
+        orderNum: 0,
+        icon: "",
+        iconList: []
+      },
+      dataRule: {
+        name: [{ required: true, message: "菜单名称不能为空", trigger: "blur" }]
+      },
+      popupTreeData: [],
+      popupTreeProps: {
+        label: "name",
+        children: "children"
+      }
+    };
+  },
+  methods: {
+    // 获取数据
+    findTreeData: function () {
+      this.loading = true;
+      this.$api.menu.findMenuTree({ 'name': this.filters.name }).then(res => {
+        this.tableTreeDdata = res.data;
+        this.popupTreeData = this.getParentMenuTree(res.data);
+        this.loading = false;
+      });
+    },
+    // 获取上级菜单树
+    getParentMenuTree: function (tableTreeDdata) {
+      let parent = {
+        parentId: 0,
+        name: "顶级菜单",
+        children: tableTreeDdata
+      };
+      return [parent];
+    },
+    // 菜单树选中
+    handleTreeSelectChange(data, node) {
+      this.dataForm.parentId = data.id;
+      this.dataForm.parentName = data.name;
+    },
+    // 图标选中
+    iconActiveHandle(iconName) {
+      this.dataForm.icon = iconName;
+    },
+    // 表单提交
+    submitForm() {
+      this.$refs["dataForm"].validate(valid => {
+        if (valid) {
+          this.$confirm("确认提交吗？", "提示", {}).then(() => {
+            this.editLoading = true;
+            let params = Object.assign({}, this.dataForm);
+            this.$api.menu.save(params).then(res => {
+              this.editLoading = false;
+              if (res.code == 200) {
+                this.$message({ message: "操作成功", type: "success" });
+                this.$refs["dataForm"].resetFields();
+                this.dialogVisible = false;
+              } else {
+                this.$message({
+                  message: "操作失败, " + res.msg,
+                  type: "error"
+                });
+              }
+              this.findTreeData();
+            });
+          });
+        }
+      });
+    }
+  },
+  mounted() {
+    this.findTreeData();
+  }
+};
+</script>
+
+<style scoped></style>
+
+File: ./src\views\Sys\Role.vue
+File Name: Role.vue
+<template>
+	<div class="page-container">
+		<!--工具栏-->
+		<div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
+			<el-form :inline="true" :model="filters" :size="size">
+				<el-form-item>
+					<el-input v-model="filters.name" placeholder="角色名"></el-input>
+				</el-form-item>
+				<el-form-item>
+					<kt-button icon="fa fa-search" :label="$t('action.search')" perms="sys:role:view" type="primary"
+						@click="findPage(null)" />
+				</el-form-item>
+				<el-form-item>
+					<kt-button icon="fa fa-plus" :label="$t('action.add')" perms="sys:role:add" type="primary"
+						@click="handleAdd" />
+				</el-form-item>
+			</el-form>
+		</div>
+		<!--表格内容栏-->
+		<kt-table :height="220" permsEdit="sys:role:edit" permsDelete="sys:role:delete" :highlightCurrentRow="true"
+			:stripe="false" :data="pageResult" :columns="columns" :showBatchDelete="false"
+			@handleCurrentChange="handleRoleSelectChange" @findPage="findPage" @handleEdit="handleEdit"
+			@handleDelete="handleDelete">
+		</kt-table>
+		<!-- </el-col> -->
+		<!--新增编辑界面-->
+		<el-dialog :title="operation ? '新增' : '编辑'" width="40%" :visible.sync="dialogVisible"
+			:close-on-click-modal="false">
+			<el-form :model="dataForm" label-width="80px" :rules="dataFormRules" ref="dataForm" :size="size">
+				<el-form-item label="ID" prop="id" v-if="false">
+					<el-input v-model="dataForm.id" :disabled="true" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="角色名" prop="name">
+					<el-input v-model="dataForm.name" auto-complete="off"></el-input>
+				</el-form-item>
+				<el-form-item label="备注 " prop="remark">
+					<el-input v-model="dataForm.remark" auto-complete="off" type="textarea"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button :size="size" @click.native="dialogVisible = false">{{ $t('action.cancel') }}</el-button>
+				<el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">{{
+					$t('action.submit') }}</el-button>
+			</div>
+		</el-dialog>
+		<!--角色菜单，表格树内容栏-->
+		<div class="menu-container" :v-if="true">
+			<div class="menu-header">
+				<span><B>角色菜单授权</B></span>
+			</div>
+			<el-tree :data="menuData" size="mini" show-checkbox node-key="id" :props="defaultProps"
+				style="width: 100%;pading-top:20px;" ref="menuTree" :render-content="renderContent"
+				v-loading="menuLoading" element-loading-text="拼命加载中" :check-strictly="true"
+				@check-change="handleMenuCheckChange">
+			</el-tree>
+			<div style="float:left;padding-left:24px;padding-top:12px;padding-bottom:4px;">
+				<el-checkbox v-model="checkAll" @change="handleCheckAll"
+					:disabled="this.selectRole.id == null"><b>全选</b></el-checkbox>
+			</div>
+			<div style="float:right;padding-right:15px;padding-top:4px;padding-bottom:4px;">
+				<kt-button :label="$t('action.reset')" perms="sys:role:edit" type="primary" @click="resetSelection"
+					:disabled="this.selectRole.id == null" />
+				<kt-button :label="$t('action.submit')" perms="sys:role:edit" type="primary" @click="submitAuthForm"
+					:disabled="this.selectRole.id == null" :loading="authLoading" />
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+import KtTable from "@/views/Core/KtTable"
+import KtButton from "@/views/Core/KtButton"
+import TableTreeColumn from '@/views/Core/TableTreeColumn'
+import { format } from "@/utils/datetime"
+export default {
+	components: {
+		KtTable,
+		KtButton,
+		TableTreeColumn
+	},
+	data() {
+		return {
+			size: 'small',
+			filters: {
+				name: ''
+			},
+			columns: [
+				{ prop: "id", label: "ID", minWidth: 50 },
+				{ prop: "name", label: "角色名", minWidth: 120 },
+				{ prop: "remark", label: "备注", minWidth: 120 },
+				{ prop: "createBy", label: "创建人", minWidth: 120 },
+				{ prop: "createTime", label: "创建时间", minWidth: 120, formatter: this.dateFormat }
+				// {prop:"lastUpdateBy", label:"更新人", minWidth:100},
+				// {prop:"lastUpdateTime", label:"更新时间", minWidth:120, formatter:this.dateFormat}
+			],
+			pageRequest: { pageNum: 1, pageSize: 10 },
+			pageResult: {},
+
+			operation: false, // true:新增, false:编辑
+			dialogVisible: false, // 新增编辑界面是否显示
+			editLoading: false,
+			dataFormRules: {
+				name: [
+					{ required: true, message: '请输入角色名', trigger: 'blur' }
+				]
+			},
+			// 新增编辑界面数据
+			dataForm: {
+				id: 0,
+				name: '',
+				remark: ''
+			},
+			selectRole: {},
+			menuData: [],
+			menuSelections: [],
+			menuLoading: false,
+			authLoading: false,
+			checkAll: false,
+			currentRoleMenus: [],
+			defaultProps: {
+				children: 'children',
+				label: 'name'
+			}
+		}
+	},
+	methods: {
+		// 获取分页数据
+		findPage: function (data) {
+			if (data !== null) {
+				this.pageRequest = data.pageRequest
+			}
+			this.pageRequest.columnFilters = { name: { name: 'name', value: this.filters.name } }
+			this.$api.role.findPage(this.pageRequest).then((res) => {
+				this.pageResult = res.data
+				this.findTreeData()
+			}).then(data != null ? data.callback : '')
+		},
+		// 批量删除
+		handleDelete: function (data) {
+			this.$api.role.batchDelete(data.params).then(data.callback)
+		},
+		// 显示新增界面
+		handleAdd: function () {
+			this.dialogVisible = true
+			this.operation = true
+			this.dataForm = {
+				id: 0,
+				name: '',
+				remark: ''
+			}
+		},
+		// 显示编辑界面
+		handleEdit: function (params) {
+			this.dialogVisible = true
+			this.operation = false
+			this.dataForm = Object.assign({}, params.row)
+		},
+		// 编辑
+		submitForm: function () {
+			this.$refs.dataForm.validate((valid) => {
+				if (valid) {
+					this.$confirm('确认提交吗？', '提示', {}).then(() => {
+						this.editLoading = true
+						let params = Object.assign({}, this.dataForm)
+						this.$api.role.save(params).then((res) => {
+							this.editLoading = false
+							if (res.code == 200) {
+								this.$message({ message: '操作成功', type: 'success' })
+								this.dialogVisible = false
+								this.$refs['dataForm'].resetFields()
+							} else {
+								this.$message({ message: '操作失败, ' + res.msg, type: 'error' })
+							}
+							this.findPage(null)
+						})
+					})
+				}
+			})
+		},
+		// 获取数据
+		findTreeData: function () {
+			this.menuLoading = true
+			this.$api.menu.findMenuTree({ 'name': '' }).then((res) => {
+				this.menuData = res.data
+				this.menuLoading = false
+			})
+		},
+		// 角色选择改变监听
+		handleRoleSelectChange(val) {
+			if (val == null || val.val == null) {
+				return
+			}
+			this.selectRole = val.val
+			this.$api.role.findRoleMenus({ 'roleId': val.val.id }).then((res) => {
+				this.currentRoleMenus = res.data
+				this.$refs.menuTree.setCheckedNodes(res.data)
+			})
+		},
+		// 树节点选择监听
+		handleMenuCheckChange(data, check, subCheck) {
+			if (check) {
+				// 节点选中时同步选中父节点
+				let parentId = data.parentId
+				this.$refs.menuTree.setChecked(parentId, true, false)
+			} else {
+				// 节点取消选中时同步取消选中子节点
+				if (data.children != null) {
+					data.children.forEach(element => {
+						this.$refs.menuTree.setChecked(element.id, false, false)
+					});
+				}
+			}
+		},
+		// 重置选择
+		resetSelection() {
+			this.checkAll = false
+			this.$refs.menuTree.setCheckedNodes(this.currentRoleMenus)
+		},
+		// 全选操作
+		handleCheckAll() {
+			if (this.checkAll) {
+				let allMenus = []
+				this.checkAllMenu(this.menuData, allMenus)
+				this.$refs.menuTree.setCheckedNodes(allMenus)
+			} else {
+				this.$refs.menuTree.setCheckedNodes([])
+			}
+		},
+		// 递归全选
+		checkAllMenu(menuData, allMenus) {
+			menuData.forEach(menu => {
+				allMenus.push(menu)
+				if (menu.children) {
+					this.checkAllMenu(menu.children, allMenus)
+				}
+			});
+		},
+		// 角色菜单授权提交
+		submitAuthForm() {
+			let roleId = this.selectRole.id
+			if ('admin' == this.selectRole.name) {
+				this.$message({ message: '超级管理员拥有所有菜单权限，不允许修改！', type: 'error' })
+				return
+			}
+			this.authLoading = true
+			let checkedNodes = this.$refs.menuTree.getCheckedNodes(false, true)
+			let roleMenus = []
+			for (let i = 0, len = checkedNodes.length; i < len; i++) {
+				let roleMenu = { roleId: roleId, menuId: checkedNodes[i].id }
+				roleMenus.push(roleMenu)
+			}
+			this.$api.role.saveRoleMenus(roleMenus).then((res) => {
+				if (res.code == 200) {
+					this.$message({ message: '操作成功', type: 'success' })
+				} else {
+					this.$message({ message: '操作失败, ' + res.msg, type: 'error' })
+				}
+				this.authLoading = false
+			})
+		},
+		renderContent(h, { node, data, store }) {
+			return (
+				<div class="column-container">
+					<span style="text-algin:center;margin-right:80px;">{data.name}</span>
+					<span style="text-algin:center;margin-right:80px;">
+						<el-tag type={data.type === 0 ? '' : data.type === 1 ? 'success' : 'info'} size="small">
+							{data.type === 0 ? '目录' : data.type === 1 ? '菜单' : '按钮'}
+						</el-tag>
+					</span>
+					<span style="text-algin:center;margin-right:80px;"> <i class={data.icon}></i></span>
+					<span style="text-algin:center;margin-right:80px;">{data.parentName ? data.parentName : '顶级菜单'}</span>
+					<span style="text-algin:center;margin-right:80px;">{data.url ? data.url : '\t'}</span>
+				</div>);
+		},
+		// 时间格式化
+		dateFormat: function (row, column, cellValue, index) {
+			return format(row[column.property])
+		}
+
+	},
+	mounted() {
+	}
+}
+</script>
+<style scoped>
+.menu-container {
+	margin-top: 10px;
+}
+
+.menu-header {
+	padding-left: 8px;
+	padding-bottom: 5px;
+	text-align: left;
+	font-size: 16px;
+	color: rgb(20, 89, 121);
+
+}
+</style>
+
+File: ./src\views\Sys\User.vue
+File Name: User.vue
+<template>
+  <div class="page-container">
+	<!--工具栏-->
+	<div class="toolbar" style="float:left;padding-top:10px;padding-left:15px;">
+		<el-form :inline="true" :model="filters" :size="size">
+			<el-form-item>
+				<el-input v-model="filters.name" placeholder="用户名"></el-input>
+			</el-form-item>
+			<el-form-item>
+				<kt-button icon="fa fa-search" :label="$t('action.search')" perms="sys:role:view" type="primary" @click="findPage(null)"/>
+			</el-form-item>
+			<el-form-item>
+				<kt-button icon="fa fa-plus" :label="$t('action.add')" perms="sys:user:add" type="primary" @click="handleAdd" />
+			</el-form-item>
+		</el-form>
+	</div>
+	<div class="toolbar" style="float:right;padding-top:10px;padding-right:15px;">
+		<el-form :inline="true" :size="size">
+			<el-form-item>
+				<el-button-group>
+				<el-tooltip content="刷新" placement="top">
+					<el-button icon="fa fa-refresh" @click="findPage(null)"></el-button>
+				</el-tooltip>
+				<el-tooltip content="列显示" placement="top">
+					<el-button icon="fa fa-filter" @click="displayFilterColumnsDialog"></el-button>
+				</el-tooltip>
+				<el-tooltip content="导出" placement="top">
+					<el-button icon="fa fa-file-excel-o"></el-button>
+				</el-tooltip>
+				</el-button-group>
+			</el-form-item>
+		</el-form>
+		<!--表格显示列界面-->
+		<table-column-filter-dialog ref="tableColumnFilterDialog" :columns="columns" 
+			@handleFilterColumns="handleFilterColumns"> 
+		</table-column-filter-dialog>
+	</div>
+	<!--表格内容栏-->
+	<kt-table :height="350" permsEdit="sys:user:edit" permsDelete="sys:user:delete"
+		:data="pageResult" :columns="filterColumns"
+		@findPage="findPage" @handleEdit="handleEdit" @handleDelete="handleDelete">
+	</kt-table>
+	<!--新增编辑界面-->
+	<el-dialog :title="operation?'新增':'编辑'" width="40%" :visible.sync="dialogVisible" :close-on-click-modal="false">
+		<el-form :model="dataForm" label-width="80px" :rules="dataFormRules" ref="dataForm" :size="size"
+			label-position="right">
+			<el-form-item label="ID" prop="id" v-if="false">
+				<el-input v-model="dataForm.id" :disabled="true" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="用户名" prop="name">
+				<el-input v-model="dataForm.name" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="密码" prop="password">
+				<el-input v-model="dataForm.password" type="password" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="机构" prop="deptName">
+				<popup-tree-input 
+					:data="deptData" 
+					:props="deptTreeProps" 
+					:prop="dataForm.deptName" 
+					:nodeKey="''+dataForm.deptId" 
+					:currentChangeHandle="deptTreeCurrentChangeHandle">
+				</popup-tree-input>
+			</el-form-item>
+			<el-form-item label="邮箱" prop="email">
+				<el-input v-model="dataForm.email" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="手机" prop="mobile">
+				<el-input v-model="dataForm.mobile" auto-complete="off"></el-input>
+			</el-form-item>
+			<el-form-item label="角色" prop="userRoles" v-if="!operation">
+				<el-select v-model="dataForm.userRoles" multiple placeholder="请选择"
+					 style="width: 100%;">
+					<el-option v-for="item in roles" :key="item.id"
+						:label="item.remark" :value="item.id">
+					</el-option>
+				</el-select>
+			</el-form-item>
+		</el-form>
+		<div slot="footer" class="dialog-footer">
+			<el-button :size="size" @click.native="dialogVisible = false">{{$t('action.cancel')}}</el-button>
+			<el-button :size="size" type="primary" @click.native="submitForm" :loading="editLoading">{{$t('action.submit')}}</el-button>
+		</div>
+	</el-dialog>
+  </div>
+</template>
+
+<script>
+import PopupTreeInput from "@/components/PopupTreeInput"
+import KtTable from "@/views/Core/KtTable"
+import KtButton from "@/views/Core/KtButton"
+import TableColumnFilterDialog from "@/views/Core/TableColumnFilterDialog"
+import { format } from "@/utils/datetime"
+export default {
+	components:{
+		PopupTreeInput,
+		KtTable,
+		KtButton,
+		TableColumnFilterDialog
+	},
+	data() {
+		return {
+			size: 'small',
+			filters: {
+				name: ''
+			},
+			columns: [],
+			filterColumns: [],
+			pageRequest: { pageNum: 1, pageSize: 10 },
+			pageResult: {},
+
+			operation: false, // true:新增, false:编辑
+			dialogVisible: false, // 新增编辑界面是否显示
+			editLoading: false,
+			dataFormRules: {
+				name: [
+					{ required: true, message: '请输入用户名', trigger: 'blur' }
+				]
+			},
+			// 新增编辑界面数据
+			dataForm: {
+				id: 0,
+				name: '',
+				password: '123456',
+				deptId: 1,
+				deptName: '',
+				email: 'test@qq.com',
+				mobile: '13889700023',
+				status: 1,
+				userRoles: []
+			},
+			deptData: [],
+			deptTreeProps: {
+				label: 'name',
+				children: 'children'
+			},
+			roles: []
+		}
+	},
+	methods: {
+		// 获取分页数据
+		findPage: function (data) {
+			if(data !== null) {
+				this.pageRequest = data.pageRequest
+			}
+			this.pageRequest.columnFilters = {name: {name:'name', value:this.filters.name}}
+			this.$api.user.findPage(this.pageRequest).then((res) => {
+				this.pageResult = res.data
+				this.findUserRoles()
+			}).then(data!=null?data.callback:'')
+		},
+		// 加载用户角色信息
+		findUserRoles: function () {
+			this.$api.role.findAll().then((res) => {
+				// 加载角色集合
+				this.roles = res.data	
+			})
+		},
+		// 批量删除
+		handleDelete: function (data) {
+			this.$api.user.batchDelete(data.params).then(data!=null?data.callback:'')
+		},
+		// 显示新增界面
+		handleAdd: function () {
+			this.dialogVisible = true
+			this.operation = true
+			this.dataForm = {
+				id: 0,
+				name: '',
+				password: '',
+				deptId: 1,
+				deptName: '',
+				email: 'test@qq.com',
+				mobile: '13889700023',
+				status: 1,
+				userRoles: []
+			}
+		},
+		// 显示编辑界面
+		handleEdit: function (params) {
+			this.dialogVisible = true
+			this.operation = false
+			this.dataForm = Object.assign({}, params.row)
+			let userRoles = []
+			for(let i=0,len=params.row.userRoles.length; i<len; i++) {
+				userRoles.push(params.row.userRoles[i].roleId)
+			}
+			this.dataForm.userRoles = userRoles
+		},
+		// 编辑
+		submitForm: function () {
+			this.$refs.dataForm.validate((valid) => {
+				if (valid) {
+					this.$confirm('确认提交吗？', '提示', {}).then(() => {
+						this.editLoading = true
+						let params = Object.assign({}, this.dataForm)
+						let userRoles = []
+						for(let i=0,len=params.userRoles.length; i<len; i++) {
+							let userRole = {
+								userId: params.id,
+								roleId: params.userRoles[i]
+							}
+							userRoles.push(userRole)
+						}
+						params.userRoles = userRoles
+						this.$api.user.save(params).then((res) => {
+							this.editLoading = false
+							if(res.code == 200) {
+								this.$message({ message: '操作成功', type: 'success' })
+								this.dialogVisible = false
+								this.$refs['dataForm'].resetFields()
+							} else {
+								this.$message({message: '操作失败, ' + res.msg, type: 'error'})
+							}
+							this.findPage(null)
+						})
+					})
+				}
+			})
+		},
+		// 获取部门列表
+		findDeptTree: function () {
+			this.$api.dept.findDeptTree().then((res) => {
+				this.deptData = res.data
+			})
+		},
+		// 菜单树选中
+      	deptTreeCurrentChangeHandle (data, node) {
+        	this.dataForm.deptId = data.id
+        	this.dataForm.deptName = data.name
+		},
+		// 时间格式化
+      	dateFormat: function (row, column, cellValue, index){
+          	return format(row[column.property])
+      	},
+		// 处理表格列过滤显示
+      	displayFilterColumnsDialog: function () {
+			this.$refs.tableColumnFilterDialog.setDialogVisible(true)
+      	},
+		// 处理表格列过滤显示
+      	handleFilterColumns: function (data) {
+			this.filterColumns = data.filterColumns
+			this.$refs.tableColumnFilterDialog.setDialogVisible(false)
+      	},
+		// 处理表格列过滤显示
+      	initColumns: function () {
+			this.columns = [
+				{prop:"id", label:"ID", minWidth:50},
+				{prop:"name", label:"用户名", minWidth:120},
+				{prop:"deptName", label:"机构", minWidth:120},
+				{prop:"roleNames", label:"角色", minWidth:100},
+				{prop:"email", label:"邮箱", minWidth:120},
+				{prop:"mobile", label:"手机", minWidth:100},
+				{prop:"status", label:"状态", minWidth:70},
+				// {prop:"createBy", label:"创建人", minWidth:120},
+				// {prop:"createTime", label:"创建时间", minWidth:120, formatter:this.dateFormat}
+				// {prop:"lastUpdateBy", label:"更新人", minWidth:100},
+				// {prop:"lastUpdateTime", label:"更新时间", minWidth:120, formatter:this.dateFormat}
+			]
+			this.filterColumns = JSON.parse(JSON.stringify(this.columns));
+      	}
+	},
+	mounted() {
+		this.findDeptTree()
+		this.initColumns()
+	}
+}
+</script>
+
+<style scoped>
+
+</style>
+
