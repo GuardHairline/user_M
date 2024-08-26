@@ -15,7 +15,7 @@
     </div>
     <div class="personal-footer" @click="logout">
       <li class="fa fa-sign-out"></li>
-      {{ $t("common.logout") }}
+      退出登录
     </div>
   </div>
 </template>

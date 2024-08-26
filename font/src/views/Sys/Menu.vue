@@ -7,18 +7,17 @@
           <el-input v-model="filters.name" placeholder="名称"></el-input>
         </el-form-item>
         <el-form-item>
-          <kt-button icon="fa fa-search" :label="$t('action.search')" perms="sys:menu:view" type="primary"
+          <kt-button icon="fa fa-search" :label="'查询'" perms="sys:menu:view" type="primary"
             @click="findTreeData(null)" />
         </el-form-item>
         <el-form-item>
-          <kt-button icon="fa fa-plus" :label="$t('action.add')" perms="sys:menu:add" type="primary"
-            @click="handleAdd" />
+          <kt-button icon="fa fa-plus" :label="'新增'" perms="sys:menu:add" type="primary" @click="handleAdd" />
         </el-form-item>
       </el-form>
     </div>
     <!--表格树内容栏-->
     <el-table :data="tableTreeDdata" stripe size="mini" style="width: 100%;" rowKey="id" v-loading="loading"
-      element-loading-text="$t('action.loading')">
+      element-loading-text="拼命加载中">
       <!-- <el-table-column
         prop="id" header-align="center" align="center" width="100" label="ID">
       </el-table-column> -->
@@ -46,11 +45,10 @@
       </el-table-column>
       <el-table-column prop="orderNum" header-align="center" align="center" label="排序">
       </el-table-column>
-      <el-table-column fixed="right" header-align="center" align="center" width="185" :label="$t('action.operation')">
+      <el-table-column fixed="right" header-align="center" align="center" width="185" :label="操作">
         <template slot-scope="scope">
-          <kt-button icon="fa fa-edit" :label="$t('action.edit')" perms="sys:menu:edit"
-            @click="handleEdit(scope.row)" />
-          <kt-button icon="fa fa-trash" :label="$t('action.delete')" perms="sys:menu:delete" type="danger"
+          <kt-button icon="fa fa-edit" :label="'编辑'" perms="sys:menu:edit" @click="handleEdit(scope.row)" />
+          <kt-button icon="fa fa-trash" :label="'删除'" perms="sys:menu:delete" type="danger"
             @click="handleDelete(scope.row)" />
         </template>
       </el-table-column>

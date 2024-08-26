@@ -8,7 +8,6 @@
     <el-form-item prop="password">
       <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码"></el-input>
     </el-form-item>
-    <!-- <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox> -->
     <el-form-item style="width:100%;">
       <el-button type="primary" style="width:48%;" @click.native.prevent="reset">重 置</el-button>
       <el-button type="primary" style="width:48%;" @click.native.prevent="login" :loading="loading">登 录</el-button>
@@ -18,7 +17,6 @@
 
 <script>
 import { mapState } from 'vuex'
-import Cookies from "js-cookie"
 export default {
   name: 'Login',
   components: {
