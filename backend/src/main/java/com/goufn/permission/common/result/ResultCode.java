@@ -2,10 +2,6 @@ package com.goufn.permission.common.result;
 
 /**
  * 枚举了一些常用API的操作码
- *
- * @author goufn
- * @version V1.0
- * @date 2020-07-09 14:14
  */
 public enum ResultCode implements IErrorCode {
     /**

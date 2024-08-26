@@ -1,6 +1,4 @@
 package com.goufn.permission.controller;
-
-import com.google.code.kaptcha.Producer;
 import com.goufn.permission.common.result.CommonResult;
 import com.goufn.permission.model.SysUser;
 import com.goufn.permission.jwt.JWTToken;

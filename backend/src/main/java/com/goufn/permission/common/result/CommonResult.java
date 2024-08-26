@@ -2,10 +2,6 @@ package com.goufn.permission.common.result;
 
 /**
  * 通用返回对象
- *
- * @author goufn
- * @version V1.0
- * @date 2020-07-09 14:18
  */
 public class CommonResult<T> {
     /** 返回码 */
